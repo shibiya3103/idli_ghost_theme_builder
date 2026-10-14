@@ -3,6 +3,8 @@ import { BuilderBlock } from "@/types/theme";
 import { useCanvasDarkMode } from "../shared/useCanvasDarkMode";
 import { getBackgroundStyle } from "../shared/background";
 
+import { useEditorStore } from "@/store/editorStore";
+
 export const CanvasElement = ({
   block,
   renderChildren,
@@ -14,13 +16,29 @@ export const CanvasElement = ({
   renderChildren?: () => React.ReactNode;
 }) => {
   useCanvasDarkMode();
+  const deviceMode = useEditorStore((s) => s.deviceMode) || "desktop";
+  const isMobile = deviceMode === "mobile";
 
-  const maxWidth = (block?.props?.maxWidth as string) || (block?.styles?.width as string) || "1200px";
+  const resolveStyleLocal = (val: unknown, fallback: string): string => {
+    if (!val) return fallback;
+    if (typeof val === "string") return val;
+    if (typeof val === "number") return `${val}px`;
+    if (typeof val === "object" && val !== null) {
+      const rec = val as Record<string, string | number | undefined>;
+      const resolved = rec[deviceMode] || rec.desktop || fallback;
+      return typeof resolved === "number" ? `${resolved}px` : (resolved || fallback);
+    }
+    return fallback;
+  };
+
+  const rawMaxWidth = resolveStyleLocal(block?.props?.maxWidth || block?.styles?.width, "1200px");
+  const maxWidth = `min(${rawMaxWidth}, 100%)`;
   const alignment = (block?.props?.alignment as string) || "center";
-  const paddingTop = (block?.styles?.paddingTop as string) || (block?.props?.paddingY as string) || "0px";
-  const paddingBottom = (block?.styles?.paddingBottom as string) || (block?.props?.paddingY as string) || "0px";
-  const paddingLeft = (block?.styles?.paddingLeft as string) || (block?.props?.paddingX as string) || "24px";
-  const paddingRight = (block?.styles?.paddingRight as string) || (block?.props?.paddingX as string) || "24px";
+  const paddingTop = resolveStyleLocal(block?.styles?.paddingTop || block?.props?.paddingY, "0px");
+  const paddingBottom = resolveStyleLocal(block?.styles?.paddingBottom || block?.props?.paddingY, "0px");
+  const defaultPl = isMobile ? "16px" : "24px";
+  const paddingLeft = resolveStyleLocal(block?.styles?.paddingLeft || block?.props?.paddingX, defaultPl);
+  const paddingRight = resolveStyleLocal(block?.styles?.paddingRight || block?.props?.paddingX, defaultPl);
   const direction = (block?.props?.direction as string) || "column";
   const gap = (block?.props?.gap as string) || "16px";
 

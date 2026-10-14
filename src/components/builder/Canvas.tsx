@@ -754,11 +754,13 @@ export default function Canvas() {
     return () => clearTimeout(timer);
   }, [activePage, deviceMode, pageSections, themeDoc.blocks, measureFrameHeight]);
 
-  const targetWidth = deviceMode === "mobile" ? 375 : deviceMode === "tablet" ? 768 : 1280;
+  const isMobileDevice = deviceMode === "mobile";
+  const targetWidth = isMobileDevice ? 375 : deviceMode === "tablet" ? 768 : 1280;
   const availableWidth = Math.max(320, containerWidth - 48);
 
   let scale = 1;
-  if (canvasFitMode === "auto" && availableWidth < targetWidth) {
+  // On mobile device mode (375px), render 1:1 without scaling to avoid scale-transform clipping edges and blur
+  if (!isMobileDevice && canvasFitMode === "auto" && availableWidth < targetWidth) {
     scale = Math.min(1, Math.max(0.4, availableWidth / targetWidth));
   }
   const isScaled = scale < 0.999;
@@ -905,7 +907,7 @@ export default function Canvas() {
           )}
           <div 
             style={{ maxWidth: resolveStyle(contentWidth) || undefined }}
-            className={block.type === "section" ? "container-width w-full px-6 mx-auto min-h-[40px] border border-dashed border-transparent hover:border-brand-hairline transition-all relative z-10" : "w-full relative z-10"}
+            className={block.type === "section" ? "container-width w-full px-4 sm:px-6 mx-auto min-h-[40px] border border-dashed border-transparent hover:border-brand-hairline transition-all relative z-10 box-border" : "w-full relative z-10"}
           >
             <CanvasElement
               block={block}
@@ -1033,6 +1035,7 @@ export default function Canvas() {
           width: isScaled ? `${Math.round(targetWidth * scale)}px` : `${targetWidth}px`,
           height: isScaled ? `${Math.round(frameHeight * scale)}px` : "auto",
           maxWidth: "100%",
+          margin: "0 auto",
         }}
       >
         <div 
@@ -1042,6 +1045,7 @@ export default function Canvas() {
           style={{
             width: `${targetWidth}px`,
             minWidth: `${targetWidth}px`,
+            maxWidth: isMobileDevice ? "375px" : undefined,
             transform: isScaled ? `scale(${scale})` : undefined,
             transformOrigin: "top center",
             ["--gh-font-heading" as string]: fontHeading,
@@ -1053,7 +1057,7 @@ export default function Canvas() {
             ["--color-link" as string]: accentColor,
             fontFamily: "var(--gh-font-body, var(--font-body))",
           }}
-          className={`relative shadow-level-5 rounded-md min-h-[850px] h-fit self-start border overflow-visible transition-shadow duration-300 flex flex-col ${isDark ? "dark bg-[var(--color-canvas)] text-[var(--color-ink)]" : "bg-white"} ${
+          className={`relative shadow-level-5 rounded-md min-h-[850px] h-fit self-start border overflow-x-clip overflow-y-visible transition-shadow duration-300 flex flex-col box-border ${isDark ? "dark bg-[var(--color-canvas)] text-[var(--color-ink)]" : "bg-white"} ${
             isCanvasOver ? "border-brand-primary ring-2 ring-brand-primary/20" : "border-brand-hairline"
           }`}
         >

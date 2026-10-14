@@ -61,7 +61,7 @@ export const SidebarElement = ({
           <span className="text-[11px] font-semibold text-brand-ink">Layout Style</span>
           <select
             value={p.layoutStyle}
-            onChange={(e) => updateProp("layoutStyle", e.target.value as any)}
+            onChange={(e) => updateProp("layoutStyle", e.target.value as ReturnType<typeof resolvePostNavigationProps>["layoutStyle"])}
             className="w-full text-xs bg-brand-canvas border border-brand-hairline rounded-md px-2 py-1.5 focus:border-brand-primary outline-none"
           >
             <option value="split">Split (Side by side)</option>

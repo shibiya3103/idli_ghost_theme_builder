@@ -166,6 +166,7 @@ export const CanvasElement = ({ block }: {
   const iconHoverClass = "hover:bg-black/5 dark:hover:bg-white/10";
 
   const isMobile = deviceMode === 'mobile';
+  const isTablet = deviceMode === 'tablet';
 
   const searchButton = general.showSearch !== false && (
     <button
@@ -226,6 +227,8 @@ export const CanvasElement = ({ block }: {
         }}
         className={vertical
           ? "gh-head-btn gh-btn w-full max-w-[280px] py-2.5 rounded-full text-[1.0625rem] font-semibold shadow-sm transition-all whitespace-nowrap opacity-90 hover:opacity-100 text-center"
+          : isTablet
+          ? "gh-head-btn gh-btn px-3 py-1.5 rounded-full text-xs font-semibold shadow-sm transition-all whitespace-nowrap opacity-90 hover:opacity-100"
           : "gh-head-btn gh-btn px-6 py-2.5 rounded-full text-[1.0625rem] font-semibold shadow-sm transition-all whitespace-nowrap opacity-90 hover:opacity-100"
         }
         style={{ backgroundColor: palette.buttonBg, color: palette.buttonText }}
@@ -242,6 +245,8 @@ export const CanvasElement = ({ block }: {
           }}
           className={vertical
             ? "gh-head-btn gh-btn w-full max-w-[280px] py-2.5 rounded-full text-[1.0625rem] font-semibold shadow-sm transition-all whitespace-nowrap opacity-90 hover:opacity-100 text-center"
+            : isTablet
+            ? "gh-head-btn gh-btn px-3 py-1.5 rounded-full text-xs font-semibold shadow-sm transition-all whitespace-nowrap opacity-90 hover:opacity-100"
             : "gh-head-btn gh-btn px-6 py-2.5 rounded-full text-[1.0625rem] font-semibold shadow-sm transition-all whitespace-nowrap opacity-90 hover:opacity-100"
           }
           style={{ backgroundColor: palette.buttonBg, color: palette.buttonText }}
@@ -258,7 +263,7 @@ export const CanvasElement = ({ block }: {
           e.stopPropagation();
           setActiveModal("Ghost Sign Out simulation active.");
         }}
-        className="text-[1.0625rem] font-medium opacity-90 hover:opacity-100 hover:underline whitespace-nowrap px-1"
+        className={`${isTablet ? "text-xs" : "text-[1.0625rem]"} font-medium opacity-90 hover:opacity-100 hover:underline whitespace-nowrap px-1`}
       >
         Sign out
       </button>
@@ -270,7 +275,7 @@ export const CanvasElement = ({ block }: {
             e.stopPropagation();
             setActiveModal("Ghost Portal Sign In simulation active.");
           }}
-          className="text-[1.0625rem] font-medium opacity-90 hover:opacity-100 hover:underline whitespace-nowrap px-1"
+          className={`${isTablet ? "text-xs" : "text-[1.0625rem]"} font-medium opacity-90 hover:opacity-100 hover:underline whitespace-nowrap px-1`}
         >
           {general.signInText || "Sign in"}
         </button>
@@ -279,7 +284,7 @@ export const CanvasElement = ({ block }: {
 
     if (!vertical) {
       return (
-        <div className="flex items-center gap-4 shrink-0">
+        <div className={`flex items-center ${isTablet ? "gap-2" : "gap-4"} shrink-0`}>
           {searchButton}
           {themeButton}
           {secondaryAction}
@@ -508,11 +513,11 @@ export const CanvasElement = ({ block }: {
             e.stopPropagation();
             setOpenDropdownIdx(isOpen ? null : idx);
           }}
-          className="cursor-pointer hover:opacity-100 transition-opacity whitespace-nowrap shrink-0 px-3 py-1.5 flex items-center gap-1.5 bg-transparent border-none text-inherit font-inherit text-[1.0625rem] leading-normal"
+          className={`cursor-pointer hover:opacity-100 transition-opacity whitespace-nowrap shrink-0 ${isTablet ? "px-2 py-1 text-xs" : "px-3 py-1.5 text-[1.0625rem]"} flex items-center gap-1.5 bg-transparent border-none text-inherit font-inherit leading-normal`}
           style={{ color: "inherit", background: "none" }}
         >
           <span>{item.label}</span>
-          <ChevronDown open={isOpen} />
+          <ChevronDown open={isOpen} size={isTablet ? 12 : 14} />
         </button>
 
         {/* Dropdown Card */}
@@ -560,7 +565,7 @@ export const CanvasElement = ({ block }: {
 
     if (!hasChildren) {
       return (
-        <span key={idx} className="cursor-pointer hover:opacity-100 transition-opacity whitespace-nowrap shrink-0 px-3 py-1.5 text-[1.0625rem]">
+        <span key={idx} className={`cursor-pointer hover:opacity-100 transition-opacity whitespace-nowrap shrink-0 ${isTablet ? "px-2 py-1 text-xs" : "px-3 py-1.5 text-[1.0625rem]"}`}>
           {item.label}
         </span>
       );
@@ -573,7 +578,7 @@ export const CanvasElement = ({ block }: {
    * Renders the desktop navigation links with dropdown support.
    */
   const renderDesktopNav = (justify: string = "center") => (
-    <nav className={`flex items-center gap-5 flex-nowrap whitespace-nowrap text-[1.0625rem] font-medium opacity-90 overflow-visible shrink-0 ${justify === "center" ? "justify-center" : "justify-start"
+    <nav className={`flex items-center ${isTablet ? "gap-2.5 text-xs" : "gap-5 text-[1.0625rem]"} flex-nowrap whitespace-nowrap font-medium opacity-90 overflow-x-auto scrollbar-none max-w-full shrink ${justify === "center" ? "justify-center" : "justify-start"
       }`}>
       {items.map((item: HeaderNavItem, idx: number) => renderDesktopNavItem(item, idx))}
     </nav>
@@ -609,15 +614,16 @@ export const CanvasElement = ({ block }: {
       >
         {/* Inner container receives Content Width */}
         <div
-          className={`mx-auto px-6 gh-head-inner content-width-${appearance.contentWidth || 'wide'}`}
+          className={`mx-auto px-4 sm:px-6 gh-head-inner content-width-${appearance.contentWidth || 'wide'}`}
           style={{
-            maxWidth: contentMaxWidth,
+            maxWidth: `min(${contentMaxWidth}, 100%)`,
             width: "100%",
             height: isMobile ? "64px" : "auto",
-            padding: isMobile ? "0 16px" : `${headerPt} 24px ${headerPb} 24px`,
+            padding: isMobile ? "0 16px" : isTablet ? "12px 16px" : `${headerPt} 24px ${headerPb} 24px`,
             display: "flex",
             alignItems: "center",
             overflow: "visible",
+            boxSizing: "border-box",
           }}
         >
 
@@ -629,21 +635,21 @@ export const CanvasElement = ({ block }: {
             </div>
           ) : isStacked ? (
             /* ============ STACKED DESKTOP ============ */
-            <div className="flex flex-col items-center gap-4 text-center w-full">
+            <div className="flex flex-col items-center gap-3 text-center w-full">
               {renderLogo()}
-              <nav className="flex flex-nowrap justify-center items-center gap-6 text-[1.0625rem] font-medium opacity-90 whitespace-nowrap overflow-visible">
+              <nav className={`flex flex-nowrap justify-center items-center ${isTablet ? "gap-3 text-xs" : "gap-6 text-[1.0625rem]"} font-medium opacity-90 whitespace-nowrap overflow-visible`}>
                 {items.map((item: HeaderNavItem, idx: number) => renderDesktopNavItem(item, idx))}
               </nav>
               {renderActions()}
             </div>
           ) : isLogoCenter ? (
             /* ============ LOGO CENTER DESKTOP ============ */
-            <div className="flex items-center justify-between w-full gap-6">
+            <div className={`flex items-center justify-between w-full ${isTablet ? "gap-3" : "gap-6"}`}>
               <div className="flex-1 flex items-center justify-start min-w-0">
                 {renderDesktopNav("start")}
               </div>
 
-              <div className="shrink-0 flex items-center justify-center font-bold tracking-tight px-4 whitespace-nowrap">
+              <div className="shrink-0 flex items-center justify-center font-bold tracking-tight px-2 sm:px-4 whitespace-nowrap">
                 {renderLogo()}
               </div>
 
@@ -653,8 +659,8 @@ export const CanvasElement = ({ block }: {
             </div>
           ) : (
             /* ============ LOGO LEFT DESKTOP (default) ============ */
-            <div className="flex items-center justify-between w-full gap-6">
-              <div className="flex items-center gap-6 min-w-0 flex-1 overflow-visible">
+            <div className={`flex items-center justify-between w-full ${isTablet ? "gap-3" : "gap-6"}`}>
+              <div className={`flex items-center ${isTablet ? "gap-3" : "gap-6"} min-w-0 flex-1 overflow-visible`}>
                 {renderLogo()}
                 {renderDesktopNav("start")}
               </div>

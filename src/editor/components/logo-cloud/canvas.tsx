@@ -11,6 +11,9 @@ export function CanvasElement({ block }: { block: BuilderBlock }) {
   useCanvasDarkMode();
   const p: LogoCloudProps = resolveLogoCloudProps(block.props);
   const assets = useEditorStore((s) => s.document.assets) || {};
+  const deviceMode = useEditorStore((s) => s.deviceMode) || "desktop";
+  const isMobile = deviceMode === "mobile";
+  const isTablet = deviceMode === "tablet";
   const general = p.general;
   const logos = p.logos || [];
   const appearance = p.appearance;
@@ -107,7 +110,7 @@ export function CanvasElement({ block }: { block: BuilderBlock }) {
     if (typeof val === "number") return `${val}px`;
     if (typeof val === "object" && val !== null) {
       const resp = val as Record<string, unknown>;
-      const resolved = resp.desktop || resp.mobile || resp.tablet;
+      const resolved = resp[deviceMode] || resp.desktop || resp.mobile || resp.tablet;
       if (typeof resolved === "string") return resolved;
       if (typeof resolved === "number") return `${resolved}px`;
     }
@@ -116,6 +119,7 @@ export function CanvasElement({ block }: { block: BuilderBlock }) {
 
   const paddingTop = resolveStyleStr(spacing?.paddingTop ?? styles?.paddingTop, "40px");
   const paddingBottom = resolveStyleStr(spacing?.paddingBottom ?? styles?.paddingBottom, "40px");
+  const effectiveCols = isMobile ? Math.min(2, general.columns) : isTablet ? Math.min(3, general.columns) : general.columns;
 
   return (
     <div 
@@ -133,7 +137,7 @@ export function CanvasElement({ block }: { block: BuilderBlock }) {
           Dynamic: #{general.dynamicTag || "hash-partner-logo"}
         </div>
       )}
-      <div className="mx-auto px-6 lg:px-8" style={{ maxWidth: LOGO_CLOUD_MAX_WIDTH }}>
+      <div className={`mx-auto ${isMobile ? "px-4" : "px-6 lg:px-8"}`} style={{ maxWidth: LOGO_CLOUD_MAX_WIDTH }}>
         
         {(general.heading || general.subheading) && (
           <div className="text-center mb-8 md:mb-10">
@@ -174,10 +178,10 @@ export function CanvasElement({ block }: { block: BuilderBlock }) {
           </div>
         ) : general.layoutStyle === "grid" ? (
           <div 
-            className="mx-auto grid max-w-lg items-center justify-items-center gap-x-8 gap-y-10 sm:max-w-xl md:max-w-none"
+            className="mx-auto grid max-w-lg items-center justify-items-center gap-x-6 gap-y-8 sm:gap-x-8 sm:gap-y-10 sm:max-w-xl md:max-w-none w-full"
             style={{ 
-              gridTemplateColumns: "repeat(var(--logo-cloud-cols), minmax(0, 1fr))",
-              "--logo-cloud-cols": general.columns,
+              gridTemplateColumns: `repeat(${effectiveCols}, minmax(0, 1fr))`,
+              "--logo-cloud-cols": effectiveCols,
             } as React.CSSProperties}
           >
             {logos.map((logo) => renderLogo(logo))}
@@ -185,7 +189,7 @@ export function CanvasElement({ block }: { block: BuilderBlock }) {
         ) : (
           /* "row" layout - horizontal flex row */
           <div className="w-full overflow-x-auto scrollbar-none py-2">
-            <div className="flex flex-row flex-nowrap items-center justify-center gap-6 sm:gap-8 md:gap-12 min-w-full">
+            <div className={`flex flex-row ${isMobile ? "flex-wrap gap-4" : "flex-nowrap gap-6 sm:gap-8 md:gap-12 min-w-full"} items-center justify-center`}>
               {logos.map((logo) => renderLogo(logo))}
             </div>
           </div>

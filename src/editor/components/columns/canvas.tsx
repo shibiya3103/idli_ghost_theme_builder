@@ -35,7 +35,20 @@ export const CanvasElement = ({
     templateCols = "repeat(4, minmax(0, 1fr))";
   }
 
-  const isMobile = deviceMode === "mobile" && stackOnMobile;
+  const isMobile = deviceMode === "mobile";
+  const isTablet = deviceMode === "tablet";
+
+  let effectiveGridCols = templateCols;
+  if (isMobile && stackOnMobile) {
+    effectiveGridCols = "1fr";
+  } else if (isTablet) {
+    if (cols >= 3) {
+      effectiveGridCols = "repeat(2, minmax(0, 1fr))";
+    } else if (cols <= 2 && stackOnMobile) {
+      effectiveGridCols = "1fr";
+    }
+  }
+
   const rawBg = (block?.styles?.backgroundColor as string) || (block?.props?.backgroundColor as string) || "";
   const bgType = block?.styles?.backgroundType || "solid";
   const hasBg = Boolean((rawBg && rawBg !== "transparent") || (bgType && bgType !== "solid"));
@@ -46,7 +59,7 @@ export const CanvasElement = ({
   const pr = (block?.styles?.paddingRight as string) || (block?.props?.padding as string) || (hasBg ? "16px" : undefined);
 
   return (
-    <div className="w-full flex flex-col gap-2">
+    <div className="w-full max-w-full flex flex-col gap-2 box-border">
       {!isPreviewMode && (
         <div className="flex items-center justify-between px-1 text-[11px] font-mono text-brand-mute select-none">
           <span className="flex items-center gap-1.5 font-semibold text-brand-body uppercase">
@@ -59,12 +72,13 @@ export const CanvasElement = ({
         </div>
       )}
       <div
-        className={`w-full grid text-brand-ink dark:text-brand-ink transition-all min-h-[40px] ${hasBg ? "rounded-md" : ""}`}
+        className={`w-full max-w-full grid text-brand-ink dark:text-brand-ink transition-all min-h-[40px] ${hasBg ? "rounded-md" : ""}`}
         style={{
-          gridTemplateColumns: isMobile ? "1fr" : templateCols,
+          gridTemplateColumns: effectiveGridCols,
           gap,
           alignItems,
           width: "100%",
+          maxWidth: "100%",
           boxSizing: "border-box",
           ...bgStyle,
           paddingTop: pt,

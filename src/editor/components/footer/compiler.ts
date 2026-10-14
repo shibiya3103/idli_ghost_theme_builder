@@ -416,7 +416,7 @@ export const compileToHbs = (block: BuilderBlock, compiledChildren: string, isPa
     justify-content: flex-end;
     gap: 24px;
   }
-  @media (max-width: 767px) {
+  @media (max-width: 768px) {
     #${htmlAnchor} .footer-bottom {
       flex-direction: column !important;
       align-items: center !important;
@@ -445,14 +445,14 @@ export const compileToHbs = (block: BuilderBlock, compiledChildren: string, isPa
     padding-bottom: ${pb};
     padding-left: ${plr};
     padding-right: ${plr};
-    max-width: ${sectionMaxWidth};
+    max-width: min(${sectionMaxWidth}, 100%);
     margin-left: auto;
     margin-right: auto;
     box-sizing: border-box;
     ${!isSectionFull ? 'border-radius: 12px; margin-top: 24px; margin-bottom: 24px;' : ''}
   "
 >
-  <div class="gh-container footer-inner content-width-${layout.contentWidth || 'standard'} align-${layout.align || 'center'}" style="margin: 0 auto; max-width: ${contentMaxWidth}; width: 100%; box-sizing: border-box; display: flex; flex-direction: column; gap: 32px;">
+  <div class="gh-container footer-inner content-width-${layout.contentWidth || 'standard'} align-${layout.align || 'center'}" style="margin: 0 auto; max-width: min(${contentMaxWidth}, 100%); width: 100%; box-sizing: border-box; display: flex; flex-direction: column; gap: 32px;">
     ${innerHtml}
   </div>
 </footer>`;

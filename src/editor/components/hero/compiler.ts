@@ -109,15 +109,22 @@ export const compileToHbs = (block: BuilderBlock): string => {
     flex-direction: ${contentFlexDirectionMobile};
     align-items: ${contentAlignItems};
     justify-content: center;
-    gap: 2.5rem;
-    max-width: ${contentMaxWidth};
+    gap: 2rem;
+    max-width: min(${contentMaxWidth}, 100%);
     margin: 0 auto;
-    padding: 0 1.5rem;
+    padding: 0 1rem;
     position: relative;
     z-index: 10;
     width: 100%;
+    box-sizing: border-box;
   }
-  @media (min-width: 768px) {
+  @media (min-width: 640px) {
+    #${uid} .hero-content {
+      padding: 0 1.5rem;
+      gap: 2.5rem;
+    }
+  }
+  @media (min-width: 1024px) {
     #${uid} .hero-content {
       flex-direction: ${contentFlexDirectionDesktop};
     }
@@ -129,10 +136,12 @@ export const compileToHbs = (block: BuilderBlock): string => {
     gap: 1.25rem;
     ${layout.startsWith('split') ? 'width: 100%; flex: 1;' : ''}
   }
-  @media (min-width: 768px) {
+  @media (min-width: 1024px) {
     #${uid} .hero-text-container {
       ${layout.startsWith('split') ? 'width: 50%;' : ''}
     }
+  }
+  @media (min-width: 768px) {
     #${uid} .hero-text-container:only-child {
       width: 100%;
       align-items: center;
@@ -145,7 +154,7 @@ export const compileToHbs = (block: BuilderBlock): string => {
     justify-content: center;
     flex: 1;
   }
-  @media (min-width: 768px) {
+  @media (min-width: 1024px) {
     #${uid} .hero-image-container {
       width: 50%;
     }

@@ -509,7 +509,7 @@ export const compileToHbs = (block: BuilderBlock): string => {
   return `<style>
   #${wrapperId} {
     width: 100%;
-    max-width: var(--container-width, 1200px);
+    max-width: min(var(--container-width, 1200px), 100%);
     margin-left: auto;
     margin-right: auto;
     padding: 2.5rem 1.5rem;

@@ -78,7 +78,10 @@ export const compileToHbs = (block: BuilderBlock) => {
     ${bgCSS}
     border: 1px solid rgba(0,0,0,0.05);
     border-radius: var(--radius-md);
-    padding: 3rem 2rem;
+    padding: clamp(1.5rem, 4vw, 3rem) clamp(1rem, 3vw, 2rem);
+    width: 100%;
+    max-width: 100%;
+    box-sizing: border-box;
     display: flex;
     flex-direction: ${wrapperFlexDirectionMobile};
     justify-content: ${wrapperJustifyContent};

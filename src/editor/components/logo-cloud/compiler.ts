@@ -213,9 +213,15 @@ export const generateHTML = (block: BuilderBlock): string => {
     width: 100%;
   }
   #${wrapperId} .logo-cloud-inner {
-    max-width: ${LOGO_CLOUD_MAX_WIDTH};
+    max-width: min(${LOGO_CLOUD_MAX_WIDTH}, 100%);
     margin: 0 auto;
-    padding: 0 1.5rem;
+    padding: 0 1rem;
+    box-sizing: border-box;
+  }
+  @media (min-width: 640px) {
+    #${wrapperId} .logo-cloud-inner {
+      padding: 0 1.5rem;
+    }
   }
   #${wrapperId} .logo-cloud-header {
     text-align: center;
@@ -264,9 +270,22 @@ export const generateHTML = (block: BuilderBlock): string => {
     display: grid;
     align-items: center;
     justify-items: center;
-    gap: 2.5rem 2rem;
+    gap: 2rem 1.5rem;
     max-width: 32rem;
     margin: 0 auto;
+    width: 100%;
+    box-sizing: border-box;
+  }
+  @media (max-width: 640px) {
+    #${wrapperId} .logo-cloud-grid {
+      grid-template-columns: repeat(2, minmax(0, 1fr)) !important;
+      gap: 1.5rem 1rem;
+    }
+  }
+  @media (min-width: 641px) and (max-width: 1024px) {
+    #${wrapperId} .logo-cloud-grid {
+      grid-template-columns: repeat(min(3, var(--logo-cloud-cols, 3)), minmax(0, 1fr)) !important;
+    }
   }
   @media (min-width: 768px) {
     #${wrapperId} .logo-cloud-grid {

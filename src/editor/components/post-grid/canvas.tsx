@@ -3,6 +3,8 @@ import { BuilderBlock } from "@/types/theme";
 import { getBackgroundStyle } from "../shared/background";
 import { useCanvasDarkMode } from "../shared/useCanvasDarkMode";
 
+import { useEditorStore } from "@/store/editorStore";
+
 export const CanvasElement = ({ block }: {
   block: BuilderBlock;
   isSelected?: boolean;
@@ -10,6 +12,9 @@ export const CanvasElement = ({ block }: {
   onDelete?: (e: React.MouseEvent) => void;
   renderChildren?: () => React.ReactNode;
 }) => {
+  const deviceMode = useEditorStore((s) => s.deviceMode) || "desktop";
+  const isMobile = deviceMode === "mobile";
+  const isTablet = deviceMode === "tablet";
   const p = block.props || {};
   const general = p.general || {};
   const postCard = p.postCard || {};
@@ -65,7 +70,17 @@ export const CanvasElement = ({ block }: {
 
   displayPosts = displayPosts.slice(0, limit);
 
-  const gridColsClass = layoutStyle === "list" ? "grid-cols-1" : `grid-cols-1 sm:grid-cols-2 lg:grid-cols-${columns}`;
+  let gridColsClass = "grid-cols-1";
+  if (layoutStyle !== "list") {
+    if (isMobile) {
+      gridColsClass = "grid-cols-1";
+    } else if (isTablet) {
+      gridColsClass = "grid-cols-1 sm:grid-cols-2";
+    } else {
+      gridColsClass = columns === 2 ? "grid-cols-1 sm:grid-cols-2" : columns === 4 ? "grid-cols-1 sm:grid-cols-2 lg:grid-cols-4" : "grid-cols-1 sm:grid-cols-2 lg:grid-cols-3";
+    }
+  }
+
   const isMagazine = layoutStyle === "magazine";
   const featurePost = displayPosts[0];
   const listPosts = displayPosts.slice(1);
@@ -79,15 +94,15 @@ export const CanvasElement = ({ block }: {
         paddingBottom: spacing.paddingBottom || "4rem"
       }}
     >
-      <div className="w-full" style={{ maxWidth: appearance.sectionWidth === 'wide' ? '1200px' : appearance.sectionWidth === 'narrow' ? '800px' : '100%' }}>
+      <div className="w-full box-border" style={{ maxWidth: `min(${appearance.sectionWidth === 'wide' ? '1200px' : appearance.sectionWidth === 'narrow' ? '800px' : '100%'}, 100%)`, padding: isMobile ? "0 16px" : "0 24px" }}>
         {p.title && (
           <h2 className="text-3xl font-sans font-bold tracking-tight text-brand-ink mb-8 text-center">{p.title}</h2>
         )}
         
         {isMagazine && featurePost ? (
-          <div className="grid grid-cols-1 lg:grid-cols-12 gap-8 w-full">
+          <div className={`grid grid-cols-1 ${isMobile || isTablet ? "gap-6" : "lg:grid-cols-12 gap-8"} w-full`}>
             <article 
-              className="lg:col-span-7 border border-brand-hairline rounded-md overflow-hidden flex flex-col"
+              className={`${isMobile || isTablet ? "w-full" : "lg:col-span-7"} border border-brand-hairline rounded-md overflow-hidden flex flex-col`}
               style={{ backgroundColor: appearance.backgroundColor || (isDark ? "var(--color-bg, #111111)" : "var(--color-bg, #ffffff)"), color: appearance.textColor || "var(--color-fg)" }}
             >
               {showFeatureImage && (
@@ -107,7 +122,7 @@ export const CanvasElement = ({ block }: {
                 )}
               </div>
             </article>
-            <div className="lg:col-span-5 flex flex-col gap-6">
+            <div className={`${isMobile || isTablet ? "w-full" : "lg:col-span-5"} flex flex-col gap-6`}>
               {listPosts.map(post => (
                 <article 
                   key={post.id} 

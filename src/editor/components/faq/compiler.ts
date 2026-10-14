@@ -276,7 +276,7 @@ export const generateHTML = (block: BuilderBlock): string => {
   #${wrapperId} .gap-x-8 { column-gap: 2rem; }
   #${wrapperId} .gap-y-0 { row-gap: 0; }
   
-  @media (max-width: 767px) {
+  @media (max-width: 768px) {
     #${wrapperId} {
       padding-top: 2.5rem !important;
       padding-bottom: 2.5rem !important;

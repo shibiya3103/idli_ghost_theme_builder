@@ -20,6 +20,10 @@ export const compileToHbs = (block: BuilderBlock, compiledChildren: string) => {
     templateCols = "repeat(4, minmax(0, 1fr))";
   }
 
+  const tabletRule = cols >= 3
+    ? `@media (max-width: 1024px) { #cols-${block.id} { grid-template-columns: repeat(min(${cols}, 2), minmax(0, 1fr)); } }`
+    : "";
+
   const mobileRule = stackMobile
     ? `@media (max-width: 768px) { #cols-${block.id} { grid-template-columns: 1fr !important; } }`
     : "";
@@ -50,9 +54,15 @@ export const compileToHbs = (block: BuilderBlock, compiledChildren: string) => {
     gap: ${gap};
     align-items: ${align};
     width: 100%;
+    max-width: 100%;
     box-sizing: border-box;
     ${extraStyles}
   }
+  #cols-${block.id} > * {
+    min-width: 0;
+    max-width: 100%;
+  }
+  ${tabletRule}
   ${mobileRule}
 </style>
 <div id="cols-${block.id}" class="theme-columns">

@@ -6,13 +6,13 @@ import { HeroSlide } from "./schema";
 import { ChevronLeft, ChevronRight, Tag } from "lucide-react";
 import { useCanvasDarkMode } from "../shared/useCanvasDarkMode";
 
-function resolveStyleValue(val: unknown, fallback: string = ""): string {
+function resolveStyleValue(val: unknown, fallback: string = "", mode: string = "desktop"): string {
   if (!val) return fallback;
   if (typeof val === "string") return val;
   if (typeof val === "number") return String(val);
   if (typeof val === "object" && val !== null) {
     const obj = val as Record<string, unknown>;
-    return String(obj.desktop || obj.mobile || obj.tablet || fallback);
+    return String(obj[mode] || obj.desktop || obj.tablet || obj.mobile || fallback);
   }
   return fallback;
 }
@@ -60,6 +60,7 @@ export const CanvasElement = ({ block }: {
 
   const deviceMode = useEditorStore((s) => s.deviceMode) || "desktop";
   const isMobile = deviceMode === "mobile";
+  const isTablet = deviceMode === "tablet";
 
   const dynamicStyle = showCover
     ? { backgroundColor: "#111", backgroundImage: `linear-gradient(${overlay}, ${overlay})` }
@@ -71,7 +72,7 @@ export const CanvasElement = ({ block }: {
 
   // Shared Layout classes for BOTH Carousel and Non-Carousel
   let wrapperClasses = `hero-block w-full relative overflow-hidden transition-colors ${!showCover && block.styles?.backgroundType === "mesh" ? "mesh-glow" : ""}`;
-  let contentClasses = "mx-auto px-6 flex relative z-10 w-full";
+  let contentClasses = `mx-auto ${isMobile ? "px-4" : "px-6"} flex relative z-10 w-full`;
   let textContainerClasses = "flex flex-col gap-4";
   let buttonGroupClasses = "mt-4 flex flex-wrap gap-3.5";
 
@@ -90,14 +91,14 @@ export const CanvasElement = ({ block }: {
       break;
     case "split-left":
       wrapperClasses += " text-left";
-      contentClasses += isMobile ? " flex-col items-center gap-8" : " flex-row items-center gap-10";
-      textContainerClasses += isMobile ? " items-start w-full" : " items-start w-1/2 flex-shrink-0";
+      contentClasses += isMobile || isTablet ? " flex-col items-center gap-8" : " flex-row items-center gap-10";
+      textContainerClasses += isMobile || isTablet ? " items-start w-full" : " items-start w-1/2 flex-shrink-0";
       buttonGroupClasses += " justify-start";
       break;
     case "split-right":
       wrapperClasses += " text-left";
-      contentClasses += isMobile ? " flex-col items-center gap-8" : " flex-row-reverse items-center gap-10";
-      textContainerClasses += isMobile ? " items-start w-full" : " items-start w-1/2 flex-shrink-0";
+      contentClasses += isMobile || isTablet ? " flex-col items-center gap-8" : " flex-row-reverse items-center gap-10";
+      textContainerClasses += isMobile || isTablet ? " items-start w-full" : " items-start w-1/2 flex-shrink-0";
       buttonGroupClasses += " justify-start";
       break;
     case "center":
@@ -109,9 +110,10 @@ export const CanvasElement = ({ block }: {
       break;
   }
 
-  const pt = resolveStyleValue(block.styles?.paddingTop, "3.5rem");
-  const pb = resolveStyleValue(block.styles?.paddingBottom, "4.5rem");
-  const maxWidth = resolveStyleValue(block.styles?.contentWidth, layout.startsWith("split") ? "1200px" : "800px");
+  const pt = resolveStyleValue(block.styles?.paddingTop, "3.5rem", deviceMode);
+  const pb = resolveStyleValue(block.styles?.paddingBottom, "4.5rem", deviceMode);
+  const rawMaxWidth = resolveStyleValue(block.styles?.contentWidth, layout.startsWith("split") ? "1200px" : "800px", deviceMode);
+  const maxWidth = `min(${rawMaxWidth}, 100%)`;
 
   // =========================================================================
   // CAROUSEL MODE
@@ -225,7 +227,7 @@ export const CanvasElement = ({ block }: {
 
           {/* Slide Visual / Image Container for Split Layouts */}
           {layout.startsWith("split") && (
-            <div className={`w-full ${isMobile ? "mt-4" : "w-1/2"} flex justify-center`}>
+            <div className={`w-full ${isMobile || isTablet ? "mt-4" : "w-1/2"} flex justify-center`}>
               {slideImg ? (
                 <div className="w-full relative rounded-xl overflow-hidden shadow-xl border border-white/10">
                   <img
@@ -370,7 +372,7 @@ export const CanvasElement = ({ block }: {
         </div>
 
         {layout.startsWith("split") && (
-          <div className={`w-full ${isMobile ? "mt-4" : "w-1/2"} flex justify-center`}>
+          <div className={`w-full ${isMobile || isTablet ? "mt-4" : "w-1/2"} flex justify-center`}>
             {useSiteData ? (
               <div className="w-full aspect-video bg-[#222] rounded-lg border-2 border-dashed border-[#444] flex flex-col gap-2 items-center justify-center text-gray-400 text-sm font-mono shadow-lg">
                 <span>{"{{@site.cover_image}}"}</span>

@@ -4,6 +4,7 @@ import { BuilderBlock } from "@/types/theme";
 import { resolveRelatedPostsProps } from "./schema";
 import { useCanvasDarkMode } from "../shared/useCanvasDarkMode";
 import { getBackgroundStyle } from "../shared/background";
+import { useEditorStore } from "@/store/editorStore";
 
 export const CanvasElement = ({
   block,
@@ -15,6 +16,9 @@ export const CanvasElement = ({
   renderChildren?: () => React.ReactNode;
 }) => {
   const isDark = useCanvasDarkMode();
+  const deviceMode = useEditorStore((s) => s.deviceMode) || "desktop";
+  const isMobile = deviceMode === "mobile";
+  const isTablet = deviceMode === "tablet";
   const p = resolveRelatedPostsProps(block.props);
   const bgStyle = getBackgroundStyle(block.styles, p.appearance);
   const isMesh = block.styles?.backgroundType === "mesh";
@@ -107,7 +111,7 @@ export const CanvasElement = ({
 
   return (
     <div
-      className={`w-full py-8 px-4 sm:px-6 transition-colors rounded-md ${isMesh ? "mesh-glow" : ""}`}
+      className={`w-full ${isMobile ? "py-6 px-4" : "py-8 px-4 sm:px-6"} transition-colors rounded-md ${isMesh ? "mesh-glow" : ""}`}
       style={bgStyle}
     >
       <style>{`
@@ -148,8 +152,8 @@ export const CanvasElement = ({
 
       {/* 1. SPLIT LAYOUT */}
       {layout === "split" && (
-        <div className="grid grid-cols-1 lg:grid-cols-12 gap-8">
-          <div className="lg:col-span-7 bg-white dark:bg-neutral-900 border border-brand-hairline dark:border-white/10 rounded-md overflow-hidden flex flex-col shadow-level-2 group hover:shadow-level-3 transition-all">
+        <div className={`grid gap-8 ${isMobile || isTablet ? "grid-cols-1" : "grid-cols-1 lg:grid-cols-12"}`}>
+          <div className={`${isMobile || isTablet ? "w-full" : "lg:col-span-7"} bg-white dark:bg-neutral-900 border border-brand-hairline dark:border-white/10 rounded-md overflow-hidden flex flex-col shadow-level-2 group hover:shadow-level-3 transition-all`}>
             {p.showImage && (
               <div className="aspect-video relative overflow-hidden bg-brand-canvas-soft-2">
                 <img
@@ -174,14 +178,14 @@ export const CanvasElement = ({
             </div>
           </div>
 
-          <div className="lg:col-span-5 flex flex-col gap-6">
+          <div className={`${isMobile || isTablet ? "w-full" : "lg:col-span-5"} flex flex-col gap-6`}>
             {secondaries.map((post) => (
               <div
                 key={post.id}
                 className="flex gap-4 items-start border-b border-brand-hairline dark:border-white/10 pb-5 last:border-0 last:pb-0"
               >
                 {p.showImage && (
-                  <div className="w-24 h-20 bg-brand-canvas-soft-2 border border-brand-hairline dark:border-white/10 rounded-sm overflow-hidden shrink-0">
+                  <div className={`${isMobile ? "w-20 h-16" : "w-24 h-20"} bg-brand-canvas-soft-2 border border-brand-hairline dark:border-white/10 rounded-sm overflow-hidden shrink-0`}>
                     <img
                       src={post.image}
                       alt={post.title}
@@ -210,7 +214,13 @@ export const CanvasElement = ({
       {layout === "grid" && (
         <div
           className={`grid gap-4 sm:gap-6 ${
-            mockPosts.length === 1
+            isMobile
+              ? "grid-cols-1 justify-items-stretch"
+              : isTablet
+              ? mockPosts.length === 1
+                ? "grid-cols-1 justify-items-center"
+                : "grid-cols-2 justify-center"
+              : mockPosts.length === 1
               ? "grid-cols-1 justify-items-center"
               : mockPosts.length === 2
               ? "grid-cols-1 sm:grid-cols-2 justify-center"
@@ -260,10 +270,12 @@ export const CanvasElement = ({
           {mockPosts.map((post) => (
             <article
               key={post.id}
-              className="bg-white dark:bg-neutral-900 border border-brand-hairline dark:border-white/10 rounded-md p-4 flex flex-col sm:flex-row gap-4 items-start sm:items-center shadow-level-1 group hover:shadow-level-2 transition-all"
+              className={`bg-white dark:bg-neutral-900 border border-brand-hairline dark:border-white/10 rounded-md p-4 flex ${
+                isMobile ? "flex-col items-start" : "flex-col sm:flex-row items-start sm:items-center"
+              } gap-4 shadow-level-1 group hover:shadow-level-2 transition-all`}
             >
               {p.showImage && (
-                <div className="w-full sm:w-40 h-28 bg-brand-canvas-soft-2 border border-brand-hairline dark:border-white/10 rounded-sm overflow-hidden shrink-0">
+                <div className={`${isMobile ? "w-full h-44" : "w-full sm:w-40 h-28"} bg-brand-canvas-soft-2 border border-brand-hairline dark:border-white/10 rounded-sm overflow-hidden shrink-0`}>
                   <img
                     src={post.image}
                     alt={post.title}
@@ -328,7 +340,7 @@ export const CanvasElement = ({
         ) : (
           <div
             className={`flex gap-6 overflow-x-auto pb-4 snap-x scrollbar-thin ${
-              mockPosts.length <= 2 ? "justify-center" : ""
+              mockPosts.length <= 2 && !isMobile ? "justify-center" : ""
             }`}
           >
             {mockPosts.map((post) => (
@@ -365,9 +377,9 @@ export const CanvasElement = ({
 
       {/* 5. BENTO GRID LAYOUT */}
       {layout === "bento" && (
-        <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+        <div className={`grid gap-6 ${isMobile ? "grid-cols-1" : "grid-cols-1 md:grid-cols-2"}`}>
           {mockPosts.map((post, idx) => {
-            const isLarge = idx % 3 === 0;
+            const isLarge = !isMobile && idx % 3 === 0;
             return (
               <article
                 key={post.id}
@@ -426,8 +438,8 @@ export const CanvasElement = ({
       {/* 6. EDITORIAL LAYOUT */}
       {layout === "editorial" && (
         <div className="flex flex-col gap-8">
-          <div className="grid grid-cols-1 lg:grid-cols-12 gap-8 items-start">
-            <article className="lg:col-span-7 bg-white dark:bg-neutral-900 border border-brand-hairline dark:border-white/10 rounded-xl overflow-hidden shadow-level-2 group hover:shadow-level-3 transition-all">
+          <div className={`grid gap-8 items-start ${isMobile || isTablet ? "grid-cols-1" : "grid-cols-1 lg:grid-cols-12"}`}>
+            <article className={`${isMobile || isTablet ? "w-full" : "lg:col-span-7"} bg-white dark:bg-neutral-900 border border-brand-hairline dark:border-white/10 rounded-xl overflow-hidden shadow-level-2 group hover:shadow-level-3 transition-all`}>
               {p.showImage && (
                 <div className="aspect-video relative overflow-hidden bg-brand-canvas-soft-2">
                   <img
@@ -452,7 +464,7 @@ export const CanvasElement = ({
               </div>
             </article>
 
-            <div className="lg:col-span-5 bg-white dark:bg-neutral-900 border border-brand-hairline dark:border-white/10 rounded-xl p-6 shadow-level-1 flex flex-col gap-4">
+            <div className={`${isMobile || isTablet ? "w-full" : "lg:col-span-5"} bg-white dark:bg-neutral-900 border border-brand-hairline dark:border-white/10 rounded-xl p-6 shadow-level-1 flex flex-col gap-4`}>
               <div className="flex items-center gap-2 pb-3 border-b border-brand-hairline dark:border-white/10">
                 <span className="text-amber-500 font-bold text-sm">&#9733;</span>
                 <h4 className="text-xs font-bold font-mono uppercase tracking-wider" style={{ color: headingColor }}>
@@ -488,9 +500,10 @@ export const CanvasElement = ({
       {/* 7. MASONRY LAYOUT */}
       {layout === "masonry" &&
         (autoScroll ? (
-          <div className="grid grid-cols-3 gap-6 h-[480px] overflow-hidden relative group/masonry">
-            {[0, 1, 2].map((colIdx) => {
-              const colPosts = mockPosts.filter((_, idx) => idx % 3 === colIdx);
+          <div className={`grid ${isMobile ? "grid-cols-1" : isTablet ? "grid-cols-2" : "grid-cols-3"} gap-6 h-[480px] overflow-hidden relative group/masonry`}>
+            {(isMobile ? [0] : isTablet ? [0, 1] : [0, 1, 2]).map((colIdx) => {
+              const numCols = isMobile ? 1 : isTablet ? 2 : 3;
+              const colPosts = mockPosts.filter((_, idx) => idx % numCols === colIdx);
               const itemsToRender = [...colPosts, ...colPosts];
               const isUp = colIdx % 2 === 0;
               return (
@@ -537,7 +550,7 @@ export const CanvasElement = ({
             })}
           </div>
         ) : mockPosts.length <= 2 ? (
-          <div className="flex gap-6 justify-center">
+          <div className={`flex ${isMobile ? "flex-col" : "flex-row"} gap-6 justify-center`}>
             {mockPosts.map((post, idx) => {
               const aspectClasses = ["aspect-square", "aspect-[4/5]", "aspect-video"][idx % 3];
               return (
@@ -572,7 +585,7 @@ export const CanvasElement = ({
             })}
           </div>
         ) : (
-          <div className="columns-3 gap-4 sm:gap-6 space-y-4 sm:space-y-6">
+          <div className={`${isMobile ? "columns-1" : isTablet ? "columns-2" : "columns-3"} gap-4 sm:gap-6 space-y-4 sm:space-y-6`}>
             {mockPosts.map((post, idx) => {
               const aspectClasses = ["aspect-square", "aspect-[4/5]", "aspect-video"][idx % 3];
               return (

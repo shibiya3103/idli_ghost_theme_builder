@@ -335,6 +335,10 @@ export function getSkeletonCss(doc?: ThemeDocument): string {
 *, *::before, *::after {
   box-sizing: border-box;
 }
+html {
+  overflow-x: clip;
+  max-width: 100vw;
+}
 body {
   margin: 0;
   font-family: var(--gh-font-body, var(--font-body));
@@ -342,6 +346,9 @@ body {
   color: var(--color-fg);
   line-height: 1.6;
   -webkit-font-smoothing: antialiased;
+  overflow-x: clip;
+  max-width: 100vw;
+  width: 100%;
 }
 h1, h2, h3, h4, h5, h6 {
   font-family: var(--gh-font-heading, var(--font-heading));
@@ -455,8 +462,10 @@ html.dark .gh-logo-dark { display: inline-block !important; }
   flex-direction: column;
   min-height: 100vh;
   width: 100%;
+  max-width: 100vw;
   position: relative;
   overflow-x: clip;
+  box-sizing: border-box;
 }
 .gh-head-wrapper,
 .gh-head,
@@ -468,11 +477,21 @@ html.dark .gh-logo-dark { display: inline-block !important; }
 .site-main {
   flex-grow: 1;
   width: 100%;
+  max-width: 100%;
   display: flex;
   flex-direction: column;
   align-items: center;
   position: relative;
   z-index: 1;
+  box-sizing: border-box;
+}
+.section,
+.hero-section,
+.footer-section {
+  width: 100%;
+  max-width: 100%;
+  position: relative;
+  box-sizing: border-box;
 }
 .hero-block {
   position: relative;
@@ -573,7 +592,7 @@ html.dark .gh-burger svg {
 .nav-accordion {
   display: none !important;
 }
-@media (max-width: 767px) {
+@media (max-width: 768px) {
   .nav-dropdown-card {
     display: none !important;
   }
@@ -735,7 +754,45 @@ html.dark .gh-share-btn.gh-share-icon-only {
 }
 
 .container-width {
-  max-width: var(--container-width);
+  width: 100%;
+  max-width: min(var(--container-width, 1200px), 100%);
+  margin-left: auto;
+  margin-right: auto;
+  box-sizing: border-box;
+}
+.theme-columns {
+  display: grid;
+  width: 100%;
+  max-width: 100%;
+  box-sizing: border-box;
+}
+.theme-columns > * {
+  min-width: 0;
+  max-width: 100%;
+  box-sizing: border-box;
+}
+@media (max-width: 1024px) {
+  .theme-columns {
+    gap: clamp(1rem, 2.5vw, 1.5rem);
+  }
+}
+@media (max-width: 768px) {
+  .theme-columns {
+    grid-template-columns: 1fr !important;
+  }
+  .container-width {
+    max-width: 100% !important;
+    padding-left: clamp(1rem, 4vw, 1.5rem) !important;
+    padding-right: clamp(1rem, 4vw, 1.5rem) !important;
+  }
+  .px-6 {
+    padding-left: clamp(1rem, 4vw, 1.5rem) !important;
+    padding-right: clamp(1rem, 4vw, 1.5rem) !important;
+  }
+  .container-inner {
+    padding-left: clamp(1rem, 4vw, 1.5rem) !important;
+    padding-right: clamp(1rem, 4vw, 1.5rem) !important;
+  }
 }
 .mx-auto {
   margin-left: auto;
@@ -1837,6 +1894,26 @@ select,
 .leading-relaxed { line-height: 1.625; }
 .text-muted { color: var(--color-muted, #737373); }
 .bg-white { background-color: var(--color-bg, #ffffff); }
+
+/* Responsive Breakpoint Utilities */
+@media (min-width: 640px) {
+  .sm\:grid-cols-2 { grid-template-columns: repeat(2, minmax(0, 1fr)) !important; }
+  .sm\:flex-row { flex-direction: row !important; }
+}
+@media (min-width: 768px) {
+  .md\:grid-cols-2 { grid-template-columns: repeat(2, minmax(0, 1fr)) !important; }
+  .md\:grid-cols-3 { grid-template-columns: repeat(3, minmax(0, 1fr)) !important; }
+  .md\:flex-row { flex-direction: row !important; }
+  .md\:col-span-2 { grid-column: span 2 / span 2 !important; }
+}
+@media (min-width: 1024px) {
+  .lg\:grid-cols-2 { grid-template-columns: repeat(2, minmax(0, 1fr)) !important; }
+  .lg\:grid-cols-3 { grid-template-columns: repeat(3, minmax(0, 1fr)) !important; }
+  .lg\:grid-cols-4 { grid-template-columns: repeat(4, minmax(0, 1fr)) !important; }
+  .lg\:grid-cols-12 { grid-template-columns: repeat(12, minmax(0, 1fr)) !important; }
+  .lg\:col-span-7 { grid-column: span 7 / span 7 !important; }
+  .lg\:col-span-5 { grid-column: span 5 / span 5 !important; }
+}
 
 /* Buttons */
 .btn {

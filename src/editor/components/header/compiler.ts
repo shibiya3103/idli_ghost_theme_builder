@@ -216,7 +216,7 @@ export const compileToHbs = (block: BuilderBlock): string => {
   #${htmlAnchor} .gh-head-inner {
     padding: 0 4vmin;
   }
-  @media (min-width: 768px) {
+  @media (min-width: 769px) {
     #${htmlAnchor} .gh-head-inner {
       padding: ${headerPt} 24px ${headerPb} 24px;
     }
@@ -259,6 +259,30 @@ export const compileToHbs = (block: BuilderBlock): string => {
       list-style: none;
       margin: 0;
       padding: 0;
+    }
+  }
+  @media (min-width: 769px) and (max-width: 1024px) {
+    #${htmlAnchor} .gh-head-inner {
+      gap: 16px !important;
+      padding-left: clamp(1rem, 3vw, 1.5rem) !important;
+      padding-right: clamp(1rem, 3vw, 1.5rem) !important;
+    }
+    #${htmlAnchor} .gh-head-menu .nav {
+      gap: 12px !important;
+    }
+    #${htmlAnchor} .gh-head-menu .nav a {
+      font-size: 14px !important;
+      padding: 4px 8px !important;
+    }
+    #${htmlAnchor} .gh-head-actions {
+      gap: 8px !important;
+    }
+    #${htmlAnchor} .gh-head-actions .gh-head-btn {
+      padding: 6px 14px !important;
+      font-size: 14px !important;
+    }
+    #${htmlAnchor} .gh-head-actions :is(.gh-head-link, .gh-signout) {
+      font-size: 14px !important;
     }
   }
   #${htmlAnchor} .gh-head-menu .nav li {
@@ -408,7 +432,7 @@ export const compileToHbs = (block: BuilderBlock): string => {
   }
 
   /* ===== Mobile Accordion Dropdown ===== */
-  @media (max-width: 767px) {
+  @media (max-width: 768px) {
     #${htmlAnchor} .nav-dropdown-card {
       display: none !important;
     }
@@ -472,7 +496,7 @@ export const compileToHbs = (block: BuilderBlock): string => {
    * #gh-head specificity on the same elements. The .gh-head class is always
    * present on the <header> alongside the #gh-head id.
    */
-  @media (max-width: 767px) {
+  @media (max-width: 768px) {
     /* -- Closed state: compact 64px bar -- */
     #${htmlAnchor}.gh-head {
       height: 64px !important;

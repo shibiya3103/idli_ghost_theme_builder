@@ -404,10 +404,10 @@ export const compileToHbs = (block: BuilderBlock): string => {
   #${wrapperId} {
     ${bgCss}
     width: 100%;
-    max-width: var(--container-width, 1200px);
+    max-width: min(var(--container-width, 1200px), 100%);
     margin-left: auto;
     margin-right: auto;
-    padding: 3rem 1.5rem;
+    padding: clamp(1.5rem, 4vw, 3rem) clamp(1rem, 3vw, 1.5rem);
     box-sizing: border-box;
     border-radius: var(--radius-md, 8px);
   }
