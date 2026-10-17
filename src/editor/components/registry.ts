@@ -164,6 +164,11 @@ import * as cardsCanvas from "./cards/canvas";
 import * as cardsSidebar from "./cards/sidebar";
 import * as cardsCompiler from "./cards/compiler";
 
+import * as beforeAfterSlider from "./before-after-slider/schema";
+import * as beforeAfterSliderCanvas from "./before-after-slider/canvas";
+import * as beforeAfterSliderSidebar from "./before-after-slider/sidebar";
+import * as beforeAfterSliderCompiler from "./before-after-slider/compiler";
+
 export const componentRegistry: Record<string, ComponentDefinition> = {
   heading: { type: "heading", ...heading, ...headingCanvas, ...headingSidebar, ...headingCompiler },
   text: { type: "text", ...text, ...textCanvas, ...textSidebar, ...textCompiler },
@@ -198,4 +203,5 @@ export const componentRegistry: Record<string, ComponentDefinition> = {
   "related-posts": { type: "related-posts", ...relatedPosts, ...relatedPostsCanvas, ...relatedPostsSidebar, ...relatedPostsCompiler },
   "post-navigation": { type: "post-navigation", ...postNavigation, ...postNavigationCanvas, ...postNavigationSidebar, ...postNavigationCompiler },
   cards: { type: "cards", ...cards, ...cardsCanvas, ...cardsSidebar, ...cardsCompiler },
+  "before-after-slider": { type: "before-after-slider", ...beforeAfterSlider, ...beforeAfterSliderCanvas, ...beforeAfterSliderSidebar, ...beforeAfterSliderCompiler },
 };

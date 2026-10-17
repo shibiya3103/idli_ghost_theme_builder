@@ -36,6 +36,7 @@ export const STANDALONE_SECTION_TYPES = new Set([
   "columns",
   "divider",
   "spacer",
+  "before-after-slider",
 ]);
 
 export const DEFAULT_DESIGN_TOKENS = {

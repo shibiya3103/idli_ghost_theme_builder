@@ -23,6 +23,7 @@ import {
   MessageCircle,
   FileText,
   ArrowLeftRight,
+  SplitSquareVertical,
   Layers,
 } from "lucide-react";
 
@@ -55,6 +56,7 @@ export const BLOCK_TEMPLATES: BlockTemplate[] = [
   { type: "grid-gallery", label: "Grid Gallery", category: "Content", icon: GalleryIcon, description: "Multi-image photo grid gallery" },
   { type: "video-player", label: "Video Player", category: "Content", icon: Play, description: "Embedded responsive video player" },
   { type: "cards", label: "Cards Grid", category: "Content", icon: Layers, description: "Multi-column feature and showcase cards" },
+  { type: "before-after-slider", label: "Before & After", category: "Content", icon: SplitSquareVertical, description: "Interactive image comparison slider" },
 
   { type: "page-detail", label: "Page Detail", category: "Ghost Core", icon: FileText, description: "Dynamic page title and content wrapper" },
   { type: "post-content", label: "Post Content", category: "Ghost Core", icon: FileText, description: "Full Ghost blog post body markup" },
