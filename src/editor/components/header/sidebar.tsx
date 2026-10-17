@@ -283,10 +283,10 @@ export const SidebarElement = ({ block, onChangeProps, onChangeStyles }: {
                 <label className="text-[10px] font-bold text-gray-400 uppercase tracking-wider mb-1 block">Subscribe Text</label>
                 <input 
                   type="text" 
-                  value={g.subscribeText || "Subscribe"}
+                  value={g.subscribeText ?? "Subscribe"}
                   onChange={(e) => updateCategory("general", "subscribeText", e.target.value)}
                   className="w-full px-2 py-1.5 text-[12px] border border-gray-200 rounded focus:border-blue-400 focus:outline-none"
-                  placeholder="Button Text"
+                  placeholder="Subscribe"
                 />
               </div>
             )}

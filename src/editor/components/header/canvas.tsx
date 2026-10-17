@@ -246,7 +246,7 @@ export const CanvasElement = ({ block }: {
           }
           style={{ backgroundColor: palette.buttonBg, color: palette.buttonText }}
         >
-          {general.subscribeText || "Subscribe"}
+          {general.subscribeText ?? "Subscribe"}
         </button>
       )
     );

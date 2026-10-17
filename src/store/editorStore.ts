@@ -95,6 +95,8 @@ export const INITIAL_THEME_DOCUMENT: ThemeDocument = {
       props: {
         general: {
           siteTitle: "",
+          showSubscribe: true,
+          subscribeText: "Subscribe",
         },
         navItems: [
           { label: "Home", url: "/" },
@@ -594,9 +596,31 @@ export function migrateThemeDocument(doc: ThemeDocument): ThemeDocument {
     newBlocks[headerId] = {
       id: headerId,
       type: "header",
-      props: {},
+      props: {
+        general: {
+          showSubscribe: true,
+          subscribeText: "Subscribe",
+        },
+      },
       styles: { backgroundColor: "var(--color-bg)", paddingTop: "16px", paddingBottom: "16px" },
     };
+  } else if (newBlocks[headerId]) {
+    const hdr = newBlocks[headerId];
+    const hdrProps = (hdr.props || {}) as Record<string, unknown>;
+    const hdrGeneral = (hdrProps.general || {}) as Record<string, unknown>;
+    if (hdrGeneral.subscribeText === undefined) {
+      newBlocks[headerId] = {
+        ...hdr,
+        props: {
+          ...hdrProps,
+          general: {
+            ...hdrGeneral,
+            showSubscribe: hdrGeneral.showSubscribe !== false,
+            subscribeText: "Subscribe",
+          },
+        },
+      };
+    }
   }
   if (!footerId) {
     footerId = "footer-sec-3";
