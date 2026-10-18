@@ -36,6 +36,7 @@ export const STANDALONE_SECTION_TYPES = new Set([
   "columns",
   "divider",
   "spacer",
+  "image-hotspots",
 ]);
 
 export const DEFAULT_DESIGN_TOKENS = {

@@ -2183,6 +2183,38 @@ export function generateThemeFiles(doc: ThemeDocument): Record<string, string> {
     }
   }, null, 2);
 
+  // 9. Include uploaded document assets in theme package
+  if (doc.assets) {
+    for (const [rawPath, dataUri] of Object.entries(doc.assets)) {
+      if (typeof dataUri === "string" && dataUri.startsWith("data:")) {
+        const parts = dataUri.split(",");
+        if (!parts[1]) continue;
+
+        // Sanitize path against directory traversal and normalize separators
+        const cleanPath = rawPath
+          .replace(/\\/g, "/")
+          .replace(/\.\.+/g, "")
+          .replace(/^\/+/, "")
+          .replace(/\/+/g, "/")
+          .trim();
+
+        if (!cleanPath) continue;
+
+        // Confine uploaded assets safely to the assets/images/ directory
+        const safePath = cleanPath.startsWith("assets/images/")
+          ? cleanPath
+          : cleanPath.startsWith("images/")
+          ? `assets/${cleanPath}`
+          : `assets/images/${cleanPath.replace(/^assets\//, "")}`;
+
+        // Never overwrite existing compiled theme files (e.g. package.json, default.hbs, screen.css)
+        if (!files[safePath]) {
+          files[safePath] = parts[1];
+        }
+      }
+    }
+  }
+
   return files;
 }
 

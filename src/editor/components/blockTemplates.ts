@@ -24,6 +24,7 @@ import {
   FileText,
   ArrowLeftRight,
   Layers,
+  MapPin,
 } from "lucide-react";
 
 export interface BlockTemplate {
@@ -55,6 +56,7 @@ export const BLOCK_TEMPLATES: BlockTemplate[] = [
   { type: "grid-gallery", label: "Grid Gallery", category: "Content", icon: GalleryIcon, description: "Multi-image photo grid gallery" },
   { type: "video-player", label: "Video Player", category: "Content", icon: Play, description: "Embedded responsive video player" },
   { type: "cards", label: "Cards Grid", category: "Content", icon: Layers, description: "Multi-column feature and showcase cards" },
+  { type: "image-hotspots", label: "Image Hotspots", category: "Content", icon: MapPin, description: "Interactive image with feature pins and tooltips" },
 
   { type: "page-detail", label: "Page Detail", category: "Ghost Core", icon: FileText, description: "Dynamic page title and content wrapper" },
   { type: "post-content", label: "Post Content", category: "Ghost Core", icon: FileText, description: "Full Ghost blog post body markup" },

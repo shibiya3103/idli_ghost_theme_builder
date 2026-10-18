@@ -164,6 +164,11 @@ import * as cardsCanvas from "./cards/canvas";
 import * as cardsSidebar from "./cards/sidebar";
 import * as cardsCompiler from "./cards/compiler";
 
+import * as imageHotspots from "./image-hotspots/schema";
+import * as imageHotspotsCanvas from "./image-hotspots/canvas";
+import * as imageHotspotsSidebar from "./image-hotspots/sidebar";
+import * as imageHotspotsCompiler from "./image-hotspots/compiler";
+
 export const componentRegistry: Record<string, ComponentDefinition> = {
   heading: { type: "heading", ...heading, ...headingCanvas, ...headingSidebar, ...headingCompiler },
   text: { type: "text", ...text, ...textCanvas, ...textSidebar, ...textCompiler },
@@ -198,4 +203,5 @@ export const componentRegistry: Record<string, ComponentDefinition> = {
   "related-posts": { type: "related-posts", ...relatedPosts, ...relatedPostsCanvas, ...relatedPostsSidebar, ...relatedPostsCompiler },
   "post-navigation": { type: "post-navigation", ...postNavigation, ...postNavigationCanvas, ...postNavigationSidebar, ...postNavigationCompiler },
   cards: { type: "cards", ...cards, ...cardsCanvas, ...cardsSidebar, ...cardsCompiler },
+  "image-hotspots": { type: "image-hotspots", ...imageHotspots, ...imageHotspotsCanvas, ...imageHotspotsSidebar, ...imageHotspotsCompiler },
 };
