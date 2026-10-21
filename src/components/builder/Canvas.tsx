@@ -755,7 +755,8 @@ export default function Canvas() {
   }, [activePage, deviceMode, pageSections, themeDoc.blocks, measureFrameHeight]);
 
   const targetWidth = deviceMode === "mobile" ? 375 : deviceMode === "tablet" ? 768 : 1280;
-  const availableWidth = Math.max(320, containerWidth - 48);
+  const paddingX = containerWidth >= 640 ? 64 : 32;
+  const availableWidth = Math.max(320, containerWidth - paddingX);
 
   let scale = 1;
   if (canvasFitMode === "auto" && availableWidth < targetWidth) {
@@ -1025,14 +1026,13 @@ export default function Canvas() {
   return (
     <div 
       ref={containerRef}
-      className="flex-1 bg-brand-canvas-soft overflow-auto p-4 sm:p-8 mesh-glow select-none relative flex flex-col items-center"
+      className="flex-1 bg-brand-canvas-soft overflow-auto p-4 sm:p-8 mesh-glow select-none relative flex flex-col"
     >
       <div 
-        className="relative flex justify-center items-start transition-all duration-200"
+        className="relative mx-auto transition-all duration-200 shrink-0"
         style={{
           width: isScaled ? `${Math.round(targetWidth * scale)}px` : `${targetWidth}px`,
           height: isScaled ? `${Math.round(frameHeight * scale)}px` : "auto",
-          maxWidth: "100%",
         }}
       >
         <div 
@@ -1043,7 +1043,7 @@ export default function Canvas() {
             width: `${targetWidth}px`,
             minWidth: `${targetWidth}px`,
             transform: isScaled ? `scale(${scale})` : undefined,
-            transformOrigin: "top center",
+            transformOrigin: "top left",
             ["--gh-font-heading" as string]: fontHeading,
             ["--gh-font-body" as string]: fontBody,
             ["--font-heading" as string]: "var(--gh-font-heading)",

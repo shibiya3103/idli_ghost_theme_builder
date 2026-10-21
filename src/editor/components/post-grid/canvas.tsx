@@ -1,7 +1,9 @@
+/* eslint-disable @next/next/no-img-element */
 import React from "react";
 import { BuilderBlock } from "@/types/theme";
 import { getBackgroundStyle } from "../shared/background";
 import { useCanvasDarkMode } from "../shared/useCanvasDarkMode";
+import { useEditorStore } from "@/store/editorStore";
 
 export const CanvasElement = ({ block }: {
   block: BuilderBlock;
@@ -20,6 +22,9 @@ export const CanvasElement = ({ block }: {
   const spacing = p.spacing || {};
 
   const isDark = useCanvasDarkMode();
+  const deviceMode = useEditorStore((state) => state.deviceMode);
+  const isMobile = deviceMode === "mobile";
+  const isTablet = deviceMode === "tablet";
   const bgStyleObj = getBackgroundStyle(styles, appearance);
 
   const limit = general.limit || 3;
@@ -82,7 +87,12 @@ export const CanvasElement = ({ block }: {
 
   displayPosts = displayPosts.slice(0, limit);
 
-  const gridColsClass = layoutStyle === "list" ? "grid-cols-1" : `grid-cols-1 sm:grid-cols-2 lg:grid-cols-${columns}`;
+  const activeGridCols = isMobile
+    ? "grid-cols-1"
+    : isTablet
+    ? (columns === 1 ? "grid-cols-1" : "grid-cols-2")
+    : (columns === 1 ? "grid-cols-1" : columns === 2 ? "grid-cols-2" : columns === 4 ? "grid-cols-4" : "grid-cols-3");
+  const gridColsClass = layoutStyle === "list" ? "grid-cols-1" : activeGridCols;
   const isMagazine = layoutStyle === "magazine";
   const featurePost = displayPosts[0];
   const listPosts = displayPosts.slice(1);
@@ -102,9 +112,9 @@ export const CanvasElement = ({ block }: {
         )}
         
         {isMagazine && featurePost ? (
-          <div className="grid grid-cols-1 lg:grid-cols-12 gap-8 w-full">
+          <div className={`grid ${isMobile || isTablet ? "grid-cols-1" : "grid-cols-1 lg:grid-cols-12"} gap-8 w-full`}>
             <article 
-              className="lg:col-span-7 border border-brand-hairline rounded-md overflow-hidden flex flex-col"
+              className={`${isMobile || isTablet ? "w-full" : "lg:col-span-7"} border border-brand-hairline rounded-md overflow-hidden flex flex-col`}
               style={{ backgroundColor: appearance.backgroundColor || (isDark ? "var(--color-bg, #111111)" : "var(--color-bg, #ffffff)"), color: appearance.textColor || "var(--color-fg)" }}
             >
               {showFeatureImage && (
@@ -125,7 +135,7 @@ export const CanvasElement = ({ block }: {
                 )}
               </div>
             </article>
-            <div className="lg:col-span-5 flex flex-col gap-6">
+            <div className={`${isMobile || isTablet ? "w-full" : "lg:col-span-5"} flex flex-col gap-6`}>
               {listPosts.map(post => (
                 <article 
                   key={post.id} 

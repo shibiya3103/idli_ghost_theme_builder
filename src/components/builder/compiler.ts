@@ -182,9 +182,57 @@ function mergeStyleStrings(existing: string, incoming: string): string {
 }
 
 /**
+ * Generates responsive media query CSS rules for blocks configuring responsive styles
+ * (e.g. tablet or mobile values differing from desktop).
+ */
+function getResponsiveBlockCss(block: BuilderBlock): string {
+  const styles = block.styles || {};
+  const cssPropMap: Record<string, string> = {
+    paddingTop: "padding-top",
+    paddingBottom: "padding-bottom",
+    paddingLeft: "padding-left",
+    paddingRight: "padding-right",
+    marginTop: "margin-top",
+    marginBottom: "margin-bottom",
+    fontSize: "font-size",
+    textAlign: "text-align",
+    width: "width",
+    gap: "gap",
+  };
+
+  const tabletRules: string[] = [];
+  const mobileRules: string[] = [];
+
+  for (const [k, v] of Object.entries(styles)) {
+    if (typeof v === "object" && v !== null && ("tablet" in v || "mobile" in v)) {
+      const cssProp = cssPropMap[k] || k.replace(/([A-Z])/g, "-$1").toLowerCase();
+      const rec = v as { tablet?: string; mobile?: string };
+      if (rec.tablet) {
+        tabletRules.push(`${cssProp}: ${rec.tablet} !important;`);
+      }
+      if (rec.mobile) {
+        mobileRules.push(`${cssProp}: ${rec.mobile} !important;`);
+      }
+    }
+  }
+
+  if (tabletRules.length === 0 && mobileRules.length === 0) return "";
+
+  const lines: string[] = ["<style>"];
+  if (tabletRules.length > 0) {
+    lines.push(`@media (max-width: 1024px) { [data-block-id="${block.id}"] { ${tabletRules.join(" ")} } }`);
+  }
+  if (mobileRules.length > 0) {
+    lines.push(`@media (max-width: 768px) { [data-block-id="${block.id}"] { ${mobileRules.join(" ")} } }`);
+  }
+  lines.push("</style>");
+  return lines.join("\n");
+}
+
+/**
  * Compiles a specific visual builder block to its Handlebars/HTML string.
  */
-function compileBlockToHbs(blockId: string, blocks: Record<string, BuilderBlock>, isPageContext: boolean = false): string {
+export function compileBlockToHbs(blockId: string, blocks: Record<string, BuilderBlock>, isPageContext: boolean = false): string {
   const block = blocks[blockId];
   if (!block) return "";
 
@@ -200,8 +248,9 @@ function compileBlockToHbs(blockId: string, blocks: Record<string, BuilderBlock>
     let markup = def.compileToHbs(block, compiledChildren, isPageContext, blocks);
     const inline = getInlineStyles(block);
     const hover = getHoverClass(block);
+    const responsiveCss = getResponsiveBlockCss(block);
 
-    if (inline || hover) {
+    if (inline || hover || responsiveCss) {
       // Find the first non-style HTML opening tag to inject attributes
       const tagRegex = /<([a-zA-Z0-9-]+)([^>]*)>/g;
       let tagMatch: RegExpExecArray | null = null;
@@ -218,6 +267,10 @@ function compileBlockToHbs(blockId: string, blocks: Record<string, BuilderBlock>
         let attributes = tagMatch[2];
         const matchIndex = tagMatch.index;
         const matchLength = tagMatch[0].length;
+
+        if (responsiveCss && !attributes.includes("data-block-id")) {
+          attributes = ` data-block-id="${block.id}"${attributes}`;
+        }
 
         if (hover) {
           if (attributes.includes('class="')) {
@@ -246,6 +299,9 @@ function compileBlockToHbs(blockId: string, blocks: Record<string, BuilderBlock>
         }
 
         markup = markup.substring(0, matchIndex) + `<${tagName}${attributes}>` + markup.substring(matchIndex + matchLength);
+        if (responsiveCss) {
+          markup = `${responsiveCss}\n${markup}`;
+        }
       }
     }
     return markup;
@@ -334,6 +390,10 @@ export function getSkeletonCss(doc?: ThemeDocument): string {
 /* 1. CSS Reset & Base Typography */
 *, *::before, *::after {
   box-sizing: border-box;
+}
+img, svg, video, iframe {
+  max-width: 100%;
+  height: auto;
 }
 body {
   margin: 0;
@@ -1837,6 +1897,57 @@ select,
 .leading-relaxed { line-height: 1.625; }
 .text-muted { color: var(--color-muted, #737373); }
 .bg-white { background-color: var(--color-bg, #ffffff); }
+
+/* Layout & Grid Utilities */
+.grid { display: grid; }
+.grid-cols-1 { grid-template-columns: repeat(1, minmax(0, 1fr)); }
+.grid-cols-2 { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+.grid-cols-3 { grid-template-columns: repeat(3, minmax(0, 1fr)); }
+.grid-cols-4 { grid-template-columns: repeat(4, minmax(0, 1fr)); }
+.gap-2 { gap: 0.5rem; }
+.gap-3 { gap: 0.75rem; }
+.gap-4 { gap: 1rem; }
+.gap-8 { gap: 2rem; }
+.gap-x-8 { column-gap: 2rem; }
+.gap-y-0 { row-gap: 0; }
+.shrink-0 { flex-shrink: 0; }
+.max-w-3xl { max-width: 48rem; }
+.max-w-6xl { max-width: 72rem; }
+.max-w-7xl { max-width: 80rem; }
+.mt-8 { margin-top: 2rem; }
+.mt-12 { margin-top: 3rem; }
+.mb-4 { margin-bottom: 1rem; }
+.mb-10 { margin-bottom: 2.5rem; }
+.leading-7 { line-height: 1.75rem; }
+.sr-only { position: absolute; width: 1px; height: 1px; padding: 0; margin: -1px; overflow: hidden; clip: rect(0, 0, 0, 0); white-space: nowrap; border-width: 0; }
+
+@media (min-width: 640px) {
+  .sm\\:grid-cols-2 { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+  .sm\\:flex-row { flex-direction: row; }
+  .sm\\:text-xs { font-size: 0.75rem; }
+  .sm\\:text-sm { font-size: 0.875rem; }
+  .sm\\:text-base { font-size: 1rem; }
+  .sm\\:text-lg { font-size: 1.125rem; }
+  .sm\\:text-xl { font-size: 1.25rem; }
+  .sm\\:text-2xl { font-size: 1.5rem; }
+  .sm\\:text-3xl { font-size: 1.875rem; }
+  .sm\\:text-4xl { font-size: 2.25rem; }
+  .sm\\:text-5xl { font-size: 3rem; }
+}
+
+@media (min-width: 768px) {
+  .md\\:grid-cols-2 { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+  .md\\:grid-cols-3 { grid-template-columns: repeat(3, minmax(0, 1fr)); }
+  .md\\:flex-row { flex-direction: row; }
+  .md\\:flex-row-reverse { flex-direction: row-reverse; }
+}
+
+@media (min-width: 1024px) {
+  .lg\\:grid-cols-2 { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+  .lg\\:grid-cols-3 { grid-template-columns: repeat(3, minmax(0, 1fr)); }
+  .lg\\:grid-cols-4 { grid-template-columns: repeat(4, minmax(0, 1fr)); }
+  .lg\\:mt-0 { margin-top: 0; }
+}
 
 /* Buttons */
 .btn {

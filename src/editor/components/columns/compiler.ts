@@ -21,7 +21,10 @@ export const compileToHbs = (block: BuilderBlock, compiledChildren: string) => {
   }
 
   const mobileRule = stackMobile
-    ? `@media (max-width: 768px) { #cols-${block.id} { grid-template-columns: 1fr !important; } }`
+    ? `@media (max-width: 767px) { #cols-${block.id} { grid-template-columns: 1fr !important; } }`
+    : "";
+  const tabletRule = cols === 4
+    ? `@media (min-width: 768px) and (max-width: 1024px) { #cols-${block.id} { grid-template-columns: repeat(2, minmax(0, 1fr)) !important; } }`
     : "";
 
   const rawBg = (block.styles?.backgroundColor as string) || (block.props?.backgroundColor as string) || "";
@@ -54,6 +57,7 @@ export const compileToHbs = (block: BuilderBlock, compiledChildren: string) => {
     ${extraStyles}
   }
   ${mobileRule}
+  ${tabletRule}
 </style>
 <div id="cols-${block.id}" class="theme-columns">
   ${compiledChildren}

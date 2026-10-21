@@ -6,13 +6,14 @@ import { HeroSlide } from "./schema";
 import { ChevronLeft, ChevronRight, Tag } from "lucide-react";
 import { useCanvasDarkMode } from "../shared/useCanvasDarkMode";
 
-function resolveStyleValue(val: unknown, fallback: string = ""): string {
-  if (!val) return fallback;
+function resolveStyleValue(val: unknown, fallback: string = "", mode: string = "desktop"): string {
+  if (val === undefined || val === null || val === "") return fallback;
   if (typeof val === "string") return val;
   if (typeof val === "number") return String(val);
   if (typeof val === "object" && val !== null) {
     const obj = val as Record<string, unknown>;
-    return String(obj.desktop || obj.mobile || obj.tablet || fallback);
+    const target = obj[mode] ?? obj.desktop ?? obj.tablet ?? obj.mobile ?? fallback;
+    return target !== undefined && target !== null && target !== "" ? String(target) : fallback;
   }
   return fallback;
 }
@@ -109,9 +110,9 @@ export const CanvasElement = ({ block }: {
       break;
   }
 
-  const pt = resolveStyleValue(block.styles?.paddingTop, "3.5rem");
-  const pb = resolveStyleValue(block.styles?.paddingBottom, "4.5rem");
-  const maxWidth = resolveStyleValue(block.styles?.contentWidth, layout.startsWith("split") ? "1200px" : "800px");
+  const pt = resolveStyleValue(block.styles?.paddingTop, "3.5rem", deviceMode);
+  const pb = resolveStyleValue(block.styles?.paddingBottom, "4.5rem", deviceMode);
+  const maxWidth = resolveStyleValue(block.styles?.contentWidth, layout.startsWith("split") ? "1200px" : "800px", deviceMode);
 
   // =========================================================================
   // CAROUSEL MODE

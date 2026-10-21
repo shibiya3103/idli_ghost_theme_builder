@@ -36,6 +36,13 @@ export const CanvasElement = ({
   }
 
   const isMobile = deviceMode === "mobile" && stackOnMobile;
+  const isTablet = deviceMode === "tablet";
+  let activeCols = templateCols;
+  if (isMobile) {
+    activeCols = "1fr";
+  } else if (isTablet && cols === 4) {
+    activeCols = "repeat(2, minmax(0, 1fr))";
+  }
   const rawBg = (block?.styles?.backgroundColor as string) || (block?.props?.backgroundColor as string) || "";
   const bgType = block?.styles?.backgroundType || "solid";
   const hasBg = Boolean((rawBg && rawBg !== "transparent") || (bgType && bgType !== "solid"));
@@ -61,7 +68,7 @@ export const CanvasElement = ({
       <div
         className={`w-full grid text-brand-ink dark:text-brand-ink transition-all min-h-[40px] ${hasBg ? "rounded-md" : ""}`}
         style={{
-          gridTemplateColumns: isMobile ? "1fr" : templateCols,
+          gridTemplateColumns: activeCols,
           gap,
           alignItems,
           width: "100%",

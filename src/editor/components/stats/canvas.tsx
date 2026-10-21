@@ -6,13 +6,14 @@ import { getBackgroundStyle } from "../shared/background";
 import { useEditorStore } from "@/store/editorStore";
 import { useCanvasDarkMode } from "../shared/useCanvasDarkMode";
 
-function resolveStyleValue(val: unknown, fallback: string = ""): string {
-  if (!val) return fallback;
+function resolveStyleValue(val: unknown, fallback: string = "", mode: string = "desktop"): string {
+  if (val === undefined || val === null || val === "") return fallback;
   if (typeof val === "string") return val;
   if (typeof val === "number") return String(val);
   if (typeof val === "object" && val !== null) {
     const obj = val as Record<string, unknown>;
-    return String(obj.desktop || obj.mobile || obj.tablet || fallback);
+    const target = obj[mode] ?? obj.desktop ?? obj.tablet ?? obj.mobile ?? fallback;
+    return target !== undefined && target !== null && target !== "" ? String(target) : fallback;
   }
   return fallback;
 }
@@ -49,10 +50,11 @@ export const CanvasElement = ({ block }: { block: BuilderBlock }) => {
     return url;
   };
 
+  const deviceMode = useEditorStore((s) => s.deviceMode) || 'desktop';
   const bgStyle = getBackgroundStyle(styles, appearance);
   const elementId = p.advanced?.htmlAnchor || `stats-${block.id}`;
-  const pt = resolveStyleValue(spacing.paddingTop, "4rem");
-  const pb = resolveStyleValue(spacing.paddingBottom, "4rem");
+  const pt = resolveStyleValue(spacing.paddingTop, "4rem", deviceMode);
+  const pb = resolveStyleValue(spacing.paddingBottom, "4rem", deviceMode);
 
   const renderStat = (stat: StatItem, idx: number) => {
     if (general.layoutStyle === "cards") {
@@ -118,7 +120,6 @@ export const CanvasElement = ({ block }: { block: BuilderBlock }) => {
 
   const isCards = general.layoutStyle === 'cards' || general.layoutStyle === 'accent-cards';
   const isDivider = general.layoutStyle === 'divider-grid';
-  const deviceMode = useEditorStore((s) => s.deviceMode) || 'desktop';
   const activeCols = Math.max(1, Math.min(general.columns, stats.length));
 
   return (

@@ -4,6 +4,7 @@ import { BuilderBlock } from "@/types/theme";
 import { resolveRelatedPostsProps } from "./schema";
 import { useCanvasDarkMode } from "../shared/useCanvasDarkMode";
 import { getBackgroundStyle } from "../shared/background";
+import { useEditorStore } from "@/store/editorStore";
 
 export const CanvasElement = ({
   block,
@@ -15,6 +16,9 @@ export const CanvasElement = ({
   renderChildren?: () => React.ReactNode;
 }) => {
   const isDark = useCanvasDarkMode();
+  const deviceMode = useEditorStore((s) => s.deviceMode);
+  const isMobile = deviceMode === "mobile";
+  const isTablet = deviceMode === "tablet";
   const p = resolveRelatedPostsProps(block.props);
   const bgStyle = getBackgroundStyle(block.styles, p.appearance);
   const isMesh = block.styles?.backgroundType === "mesh";
@@ -148,8 +152,8 @@ export const CanvasElement = ({
 
       {/* 1. SPLIT LAYOUT */}
       {layout === "split" && (
-        <div className="grid grid-cols-1 lg:grid-cols-12 gap-8">
-          <div className="lg:col-span-7 bg-white dark:bg-neutral-900 border border-brand-hairline dark:border-white/10 rounded-md overflow-hidden flex flex-col shadow-level-2 group hover:shadow-level-3 transition-all">
+        <div className={`grid ${isMobile || isTablet ? "grid-cols-1" : "grid-cols-1 lg:grid-cols-12"} gap-8`}>
+          <div className={`${isMobile || isTablet ? "w-full" : "lg:col-span-7"} bg-white dark:bg-neutral-900 border border-brand-hairline dark:border-white/10 rounded-md overflow-hidden flex flex-col shadow-level-2 group hover:shadow-level-3 transition-all`}>
             {p.showImage && (
               <div className="aspect-video relative overflow-hidden bg-brand-canvas-soft-2">
                 <img
@@ -174,7 +178,7 @@ export const CanvasElement = ({
             </div>
           </div>
 
-          <div className="lg:col-span-5 flex flex-col gap-6">
+          <div className={`${isMobile || isTablet ? "w-full" : "lg:col-span-5"} flex flex-col gap-6`}>
             {secondaries.map((post) => (
               <div
                 key={post.id}
@@ -212,6 +216,10 @@ export const CanvasElement = ({
           className={`grid gap-4 sm:gap-6 ${
             mockPosts.length === 1
               ? "grid-cols-1 justify-items-center"
+              : isMobile
+              ? "grid-cols-1"
+              : isTablet
+              ? "grid-cols-2"
               : mockPosts.length === 2
               ? "grid-cols-1 sm:grid-cols-2 justify-center"
               : "grid-cols-1 sm:grid-cols-2 lg:grid-cols-3"
@@ -365,20 +373,20 @@ export const CanvasElement = ({
 
       {/* 5. BENTO GRID LAYOUT */}
       {layout === "bento" && (
-        <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+        <div className={`grid ${isMobile ? "grid-cols-1" : "grid-cols-1 md:grid-cols-2"} gap-6`}>
           {mockPosts.map((post, idx) => {
             const isLarge = idx % 3 === 0;
             return (
               <article
                 key={post.id}
                 className={`bg-white dark:bg-neutral-900 border border-brand-hairline dark:border-white/10 rounded-2xl p-6 flex flex-col justify-between shadow-level-2 hover:shadow-level-3 transition-all ${
-                  isLarge ? "md:col-span-2 flex-col md:flex-row gap-6 items-center" : "gap-4"
+                  isLarge ? (isMobile ? "flex-col gap-6 items-center" : "md:col-span-2 flex-col md:flex-row gap-6 items-center") : "gap-4"
                 }`}
               >
                 {p.showImage && (
                   <div
                     className={`rounded-xl overflow-hidden bg-brand-canvas-soft-2 shrink-0 ${
-                      isLarge ? "w-full md:w-1/2 aspect-video" : "w-full aspect-[4/3]"
+                      isLarge ? (isMobile ? "w-full aspect-video" : "w-full md:w-1/2 aspect-video") : "w-full aspect-[4/3]"
                     }`}
                   >
                     <img
@@ -426,8 +434,8 @@ export const CanvasElement = ({
       {/* 6. EDITORIAL LAYOUT */}
       {layout === "editorial" && (
         <div className="flex flex-col gap-8">
-          <div className="grid grid-cols-1 lg:grid-cols-12 gap-8 items-start">
-            <article className="lg:col-span-7 bg-white dark:bg-neutral-900 border border-brand-hairline dark:border-white/10 rounded-xl overflow-hidden shadow-level-2 group hover:shadow-level-3 transition-all">
+          <div className={`grid ${isMobile || isTablet ? "grid-cols-1" : "grid-cols-1 lg:grid-cols-12"} gap-8 items-start`}>
+            <article className={`${isMobile || isTablet ? "w-full" : "lg:col-span-7"} bg-white dark:bg-neutral-900 border border-brand-hairline dark:border-white/10 rounded-xl overflow-hidden shadow-level-2 group hover:shadow-level-3 transition-all`}>
               {p.showImage && (
                 <div className="aspect-video relative overflow-hidden bg-brand-canvas-soft-2">
                   <img
@@ -452,7 +460,7 @@ export const CanvasElement = ({
               </div>
             </article>
 
-            <div className="lg:col-span-5 bg-white dark:bg-neutral-900 border border-brand-hairline dark:border-white/10 rounded-xl p-6 shadow-level-1 flex flex-col gap-4">
+            <div className={`${isMobile || isTablet ? "w-full" : "lg:col-span-5"} bg-white dark:bg-neutral-900 border border-brand-hairline dark:border-white/10 rounded-xl p-6 shadow-level-1 flex flex-col gap-4`}>
               <div className="flex items-center gap-2 pb-3 border-b border-brand-hairline dark:border-white/10">
                 <span className="text-amber-500 font-bold text-sm">&#9733;</span>
                 <h4 className="text-xs font-bold font-mono uppercase tracking-wider" style={{ color: headingColor }}>
@@ -572,7 +580,7 @@ export const CanvasElement = ({
             })}
           </div>
         ) : (
-          <div className="columns-3 gap-4 sm:gap-6 space-y-4 sm:space-y-6">
+          <div className={`${isMobile ? "columns-1" : isTablet ? "columns-2" : "columns-3"} gap-4 sm:gap-6 space-y-4 sm:space-y-6`}>
             {mockPosts.map((post, idx) => {
               const aspectClasses = ["aspect-square", "aspect-[4/5]", "aspect-video"][idx % 3];
               return (

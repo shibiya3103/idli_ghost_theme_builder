@@ -250,28 +250,28 @@ export default function Toolbar() {
 
   return (
     <>
-      <header className="builder-toolbar h-[64px] border-b border-brand-hairline bg-brand-canvas text-brand-ink px-6 flex items-center justify-between shrink-0 select-none shadow-level-1 z-10">
+      <header className="builder-toolbar min-h-[64px] border-b border-brand-hairline bg-brand-canvas text-brand-ink px-3 sm:px-4 flex items-center justify-between shrink-0 select-none shadow-level-1 z-10 gap-2 w-full">
       {/* Brand Logo & Name */}
-      <div className="flex items-center gap-3">
+      <div className="flex items-center gap-2 sm:gap-3 shrink min-w-0">
         <Link 
           href="/dashboard" 
-          className="flex items-center gap-1.5 px-2 py-1 -ml-1 text-xs text-brand-body hover:text-brand-ink rounded hover:bg-brand-canvas-soft transition-colors" 
+          className="flex items-center gap-1.5 px-2 py-1 -ml-1 text-xs text-brand-body hover:text-brand-ink rounded hover:bg-brand-canvas-soft transition-colors shrink-0"
           title="Back to Dashboard"
         >
           <ArrowLeft size={14} />
-          <span className="font-medium hidden sm:inline">Dashboard</span>
+          <span className="font-medium hidden md:inline">Dashboard</span>
         </Link>
-        <div className="h-4 w-px bg-brand-hairline hidden sm:block" />
-        <Link href="/" className="flex items-center gap-2 group" title="Ghost Theme Builder Home">
-          <div className="w-8 h-8 bg-brand-primary flex items-center justify-center rounded-sm transition-transform group-hover:scale-105">
+        <div className="h-4 w-px bg-brand-hairline hidden md:block" />
+        <Link href="/" className="flex items-center gap-2 group shrink min-w-0" title="Ghost Theme Builder Home">
+          <div className="w-8 h-8 bg-brand-primary flex items-center justify-center rounded-sm transition-transform group-hover:scale-105 shrink-0">
             <span className="text-brand-on-primary font-mono font-semibold text-sm">G</span>
           </div>
-          <div>
+          <div className="min-w-0">
             <div className="flex items-center gap-2">
-              <span className="font-sans font-semibold text-sm tracking-tight text-brand-ink truncate max-w-[170px]">
+              <span className="font-sans font-semibold text-sm tracking-tight text-brand-ink truncate max-w-[90px] sm:max-w-[130px] md:max-w-[160px]">
                 {themeDoc.metadata?.name || "Ghost Theme"}
               </span>
-              <span className="font-mono text-[10px] bg-brand-canvas-soft border border-brand-hairline px-1.5 py-0.5 rounded-sm text-brand-body uppercase">
+              <span className="font-mono text-[10px] bg-brand-canvas-soft border border-brand-hairline px-1.5 py-0.5 rounded-sm text-brand-body uppercase hidden 2xl:inline">
                 v{themeDoc.metadata?.version || "1.0.0"}
               </span>
             </div>
@@ -280,12 +280,12 @@ export default function Toolbar() {
       </div>
 
       {/* Dynamic Pages Selector & Add Page CTA */}
-      <div className="flex items-center gap-2">
-        <span className="text-[11px] font-mono uppercase text-brand-mute">Page:</span>
+      <div className="flex items-center gap-1.5 sm:gap-2 shrink-0">
+        <span className="text-[11px] font-mono uppercase text-brand-mute hidden lg:inline">Page:</span>
         <select
           value={activePage}
           onChange={(e) => setActivePage(e.target.value)}
-          className="px-2.5 py-1 border border-brand-hairline rounded-sm text-xs font-medium focus:outline-none bg-brand-canvas-soft text-brand-ink"
+          className="px-2 py-1 border border-brand-hairline rounded-sm text-xs font-medium focus:outline-none bg-brand-canvas-soft text-brand-ink max-w-[110px] sm:max-w-[140px] md:max-w-[170px]"
         >
           <optgroup label="Default Layouts">
             <option value="home">Home (index.hbs)</option>
@@ -318,14 +318,14 @@ export default function Toolbar() {
           <Copy size={14} />
         </button>
 
-        <div className="flex items-center gap-1.5 ml-2 border-l border-brand-hairline pl-2">
+        <div className="flex items-center gap-1.5 ml-1 sm:ml-2 border-l border-brand-hairline pl-1.5 sm:pl-2">
           <button
             onClick={() => setShowTemplateModal(true)}
             className="flex items-center gap-1.5 px-2 py-1 bg-brand-canvas-soft border border-brand-hairline rounded-sm text-xs font-medium hover:bg-brand-canvas-soft-2 text-brand-ink transition-colors"
             title="Choose a layout template for the current page"
           >
             <LayoutTemplate size={13} />
-            <span>Templates</span>
+            <span className="hidden 2xl:inline">Templates</span>
           </button>
         </div>
 
@@ -333,8 +333,8 @@ export default function Toolbar() {
       </div>
 
       {/* View Mode & History Toggles */}
-      <div className="flex items-center gap-6">
-        <div className="flex items-center border-r border-brand-hairline pr-6 gap-1">
+      <div className="flex items-center gap-1.5 sm:gap-3 shrink-0">
+        <div className="flex items-center border-r border-brand-hairline pr-1.5 sm:pr-3 gap-0.5 sm:gap-1">
           <button
             onClick={() => setDeviceMode("desktop")}
             className={`p-1.5 rounded-xs transition-colors ${deviceMode === "desktop" ? "bg-brand-canvas-soft-2 text-brand-ink font-semibold" : "text-brand-mute hover:text-brand-ink"}`}
@@ -359,7 +359,7 @@ export default function Toolbar() {
         </div>
 
         {/* Undo / Redo */}
-        <div className="flex items-center gap-2">
+        <div className="flex items-center gap-1 sm:gap-2">
           <button
             onClick={undo}
             disabled={past.length === 0}
@@ -379,7 +379,7 @@ export default function Toolbar() {
         </div>
 
         {/* View Toggles & Help */}
-        <div className="flex items-center gap-3 border-l border-brand-hairline pl-6">
+        <div className="flex items-center gap-1.5 sm:gap-2.5 border-l border-brand-hairline pl-1.5 sm:pl-3">
           <button
             onClick={togglePreviewMode}
             className={`p-1.5 rounded-xs transition-colors ${isPreviewMode ? "bg-brand-canvas-soft-2 text-brand-ink font-semibold" : "text-brand-mute hover:text-brand-ink"}`}
@@ -403,20 +403,21 @@ export default function Toolbar() {
           </button>
           <button
             onClick={() => toggleShortcutsHelp()}
-            className="p-1.5 rounded-xs text-brand-mute hover:text-brand-ink transition-colors"
+            className="p-1.5 rounded-xs text-brand-mute hover:text-brand-ink transition-colors hidden xl:block"
             title="Help / Keyboard Shortcuts"
           >
             <HelpCircle size={16} />
           </button>
         </div>
+      </div>
 
-        {/* Export / Action Buttons */}
-        <div className="flex items-center gap-3">
+      {/* Export / Action Buttons - ALWAYS visible and right-aligned */}
+      <div className="flex items-center gap-2 sm:gap-2.5 shrink-0 ml-auto">
           {/* Live Score Badge */}
           {liveScore && (
             <button 
               onClick={() => setShowValidationModal(true)}
-              className={`flex items-center gap-1.5 px-2 py-1 rounded-sm border transition-colors ${liveScore.level === 'error' ? 'bg-red-50 border-red-200 text-red-700 hover:bg-red-100' : liveScore.level === 'warning' ? 'bg-yellow-50 border-yellow-200 text-yellow-700 hover:bg-yellow-100' : 'bg-emerald-50 border-emerald-200 text-emerald-700 hover:bg-emerald-100'}`} 
+              className={`hidden xl:flex items-center gap-1.5 px-2 py-1 rounded-sm border transition-colors shrink-0 ${liveScore.level === 'error' ? 'bg-red-50 border-red-200 text-red-700 hover:bg-red-100' : liveScore.level === 'warning' ? 'bg-yellow-50 border-yellow-200 text-yellow-700 hover:bg-yellow-100' : 'bg-emerald-50 border-emerald-200 text-emerald-700 hover:bg-emerald-100'}`}
               title="Click to view GScan validation report"
             >
               <span className="text-[10px] font-bold font-mono tracking-tight">GSCAN: {liveScore.value}/100</span>
@@ -425,7 +426,7 @@ export default function Toolbar() {
           )}
 
           {/* Autosave / DB Status Badge */}
-          <div className="flex items-center gap-1.5 text-xs text-brand-body pr-2">
+          <div className="hidden xl:flex items-center gap-1.5 text-xs text-brand-body pr-1 shrink-0">
             {saveStatus === "saving" && (
               <>
                 <Loader2 size={13} className="animate-spin text-brand-link" />
@@ -449,7 +450,7 @@ export default function Toolbar() {
           <button 
             disabled={isSaving}
             onClick={() => saveTheme()}
-            className="flex items-center gap-1.5 px-3 py-1.5 border border-brand-hairline rounded-sm text-xs font-semibold hover:bg-brand-canvas-soft text-brand-ink transition-all shadow-level-2 bg-brand-canvas cursor-pointer"
+            className="flex items-center gap-1.5 px-2.5 sm:px-3 py-1.5 border border-brand-hairline rounded-sm text-xs font-semibold hover:bg-brand-canvas-soft text-brand-ink transition-all shadow-level-2 bg-brand-canvas cursor-pointer shrink-0 disabled:opacity-50 disabled:cursor-not-allowed"
             title="Manual Save to Database"
           >
             {isSaving ? <Loader2 size={12} className="animate-spin" /> : <Save size={12} />}
@@ -457,7 +458,7 @@ export default function Toolbar() {
           </button>
 
           <button 
-            className="flex items-center gap-1.5 px-3 py-1.5 bg-brand-primary text-brand-on-primary rounded-sm text-xs font-semibold hover:opacity-90 transition-all shadow-level-3 cursor-pointer"
+            className="flex items-center gap-1.5 px-2.5 sm:px-3 py-1.5 bg-brand-primary text-brand-on-primary rounded-sm text-xs font-semibold hover:opacity-90 transition-all shadow-level-3 cursor-pointer shrink-0"
             onClick={async () => {
               const zip = new JSZip();
 
@@ -550,7 +551,6 @@ export default function Toolbar() {
             <span>{isExporting ? "Validating..." : "Export Theme"}</span>
           </button>
         </div>
-      </div>
     </header>
 
       <TemplatePickerModal 

@@ -10,7 +10,8 @@
     "typecheck": "tsc --noEmit",
     "test:components": "node scripts/verify-component-registration.mjs",
     "test:export": "tsx scripts/export-test.ts",
-    "test:compilation": "tsx scripts/verify-compilation.ts"
+    "test:compilation": "tsx scripts/verify-compilation.ts",
+    "test:responsive": "tsx scripts/verify-responsive.ts"
   },
   "dependencies": {
     "@dnd-kit/core": "^6.3.1",

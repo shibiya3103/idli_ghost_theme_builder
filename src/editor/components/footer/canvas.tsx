@@ -59,7 +59,7 @@ export function CanvasElement({ block, onClick }: {
     }
     if (typeof val === "object") {
       const obj = val as Record<string, unknown>;
-      const resolved = obj.desktop ?? obj.tablet ?? obj.mobile;
+      const resolved = obj[deviceMode] ?? obj.desktop ?? obj.tablet ?? obj.mobile;
       if (resolved !== undefined && resolved !== null) {
         return resolvePadding(resolved, fallback);
       }
@@ -127,7 +127,7 @@ export function CanvasElement({ block, onClick }: {
       <div className="mx-auto w-full flex flex-col gap-8" style={{ maxWidth: contentMaxWidth }}>
         
         {layoutStyle === "Multi-Column" && (
-          <div className={`grid gap-8 sm:gap-10 mb-8 ${isMobile ? 'grid-cols-1' : 'grid-cols-1 md:grid-cols-3'}`}>
+          <div className={`grid gap-8 sm:gap-10 mb-8 ${isMobile ? 'grid-cols-1' : deviceMode === 'tablet' ? 'grid-cols-2' : 'grid-cols-1 md:grid-cols-3'}`}>
             <div className={`flex flex-col gap-4 ${isMobile ? 'text-center items-center' : ''}`}>
               <h4 className="text-xl font-bold">Your Publication</h4>
               <p className="opacity-80 leading-relaxed">Thoughts, stories and ideas about building modern software and design.</p>
