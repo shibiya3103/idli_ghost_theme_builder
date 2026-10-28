@@ -182,10 +182,34 @@ function mergeStyleStrings(existing: string, incoming: string): string {
 }
 
 /**
+ * Validates responsive style values to ensure only safe, expected CSS values are emitted.
+ * Allows safe dimensional units (px, rem, em, %, vh, vw, pt, ch), 0, and auto.
+ * For textAlign, strictly allows only 'left', 'center', and 'right'.
+ * Rejects CSS injection, characters like ';', '{', '}', '<', '>', quotes, and unsupported properties.
+ */
+export function isValidResponsiveValue(prop: string, val: unknown): boolean {
+  if (typeof val !== "string") return false;
+  const trimmed = val.trim();
+  if (!trimmed) return false;
+
+  // Reject CSS injection attempts and unsafe characters
+  if (/[;{}<>"'\\/()`]/.test(trimmed)) {
+    return false;
+  }
+
+  if (prop === "textAlign") {
+    return /^(left|center|right)$/.test(trimmed);
+  }
+
+  // Safe dimensional values: e.g. 24px, 1.5rem, -10px, 100%, 0, auto
+  return /^-?(\d+(\.\d+)?|\.\d+)(px|rem|em|%|vh|vw|pt|ch)$|^0$|^auto$/i.test(trimmed);
+}
+
+/**
  * Generates responsive media query CSS rules for blocks configuring responsive styles
  * (e.g. tablet or mobile values differing from desktop).
  */
-function getResponsiveBlockCss(block: BuilderBlock): string {
+export function getResponsiveBlockCss(block: BuilderBlock): string {
   const styles = block.styles || {};
   const cssPropMap: Record<string, string> = {
     paddingTop: "padding-top",
@@ -204,14 +228,19 @@ function getResponsiveBlockCss(block: BuilderBlock): string {
   const mobileRules: string[] = [];
 
   for (const [k, v] of Object.entries(styles)) {
+    // Only process keys explicitly present in cssPropMap (reject unsupported properties)
+    const cssProp = cssPropMap[k];
+    if (!cssProp) {
+      continue;
+    }
+
     if (typeof v === "object" && v !== null && ("tablet" in v || "mobile" in v)) {
-      const cssProp = cssPropMap[k] || k.replace(/([A-Z])/g, "-$1").toLowerCase();
-      const rec = v as { tablet?: string; mobile?: string };
-      if (rec.tablet) {
-        tabletRules.push(`${cssProp}: ${rec.tablet} !important;`);
+      const rec = v as { tablet?: unknown; mobile?: unknown };
+      if (isValidResponsiveValue(k, rec.tablet)) {
+        tabletRules.push(`${cssProp}: ${(rec.tablet as string).trim()} !important;`);
       }
-      if (rec.mobile) {
-        mobileRules.push(`${cssProp}: ${rec.mobile} !important;`);
+      if (isValidResponsiveValue(k, rec.mobile)) {
+        mobileRules.push(`${cssProp}: ${(rec.mobile as string).trim()} !important;`);
       }
     }
   }
@@ -220,10 +249,10 @@ function getResponsiveBlockCss(block: BuilderBlock): string {
 
   const lines: string[] = ["<style>"];
   if (tabletRules.length > 0) {
-    lines.push(`@media (max-width: 1024px) { [data-block-id="${block.id}"] { ${tabletRules.join(" ")} } }`);
+    lines.push(`@media (min-width: 768px) and (max-width: 1024px) { [data-block-id="${block.id}"] { ${tabletRules.join(" ")} } }`);
   }
   if (mobileRules.length > 0) {
-    lines.push(`@media (max-width: 768px) { [data-block-id="${block.id}"] { ${mobileRules.join(" ")} } }`);
+    lines.push(`@media (max-width: 767px) { [data-block-id="${block.id}"] { ${mobileRules.join(" ")} } }`);
   }
   lines.push("</style>");
   return lines.join("\n");
@@ -391,9 +420,12 @@ export function getSkeletonCss(doc?: ThemeDocument): string {
 *, *::before, *::after {
   box-sizing: border-box;
 }
-img, svg, video, iframe {
+img, video {
   max-width: 100%;
   height: auto;
+}
+svg, iframe {
+  max-width: 100%;
 }
 body {
   margin: 0;
@@ -2061,6 +2093,24 @@ select:focus {
 }
 
 /**
+ * Sanitizes a theme display name into a valid Ghost package name according to rule GS010-PJ-NAME-HY.
+ * Must consist only of lowercase alphanumeric characters and single hyphens,
+ * with no leading or trailing hyphens, falling back to 'my-ghost-theme' if empty or invalid.
+ */
+export function sanitizeThemePackageName(name?: string | null): string {
+  if (!name || typeof name !== "string") {
+    return "my-ghost-theme";
+  }
+  const sanitized = name
+    .toLowerCase()
+    .trim()
+    .replace(/[^a-z0-9]+/g, "-")
+    .replace(/^-+|-+$/g, "");
+
+  return sanitized || "my-ghost-theme";
+}
+
+/**
  * Generates the full packaged Ghost theme file list content.
  */
 export function generateThemeFiles(doc: ThemeDocument): Record<string, string> {
@@ -2278,7 +2328,7 @@ export function generateThemeFiles(doc: ThemeDocument): Record<string, string> {
   }
 
   files["package.json"] = JSON.stringify({
-    name: doc.metadata.name.toLowerCase().replace(/\s+/g, "-"),
+    name: sanitizeThemePackageName(doc.metadata?.name),
     description: doc.metadata.description || "Visual theme compiled from AST builder",
     version: doc.metadata.version || "1.0.0",
     engines: {

@@ -1,5 +1,5 @@
 import { INITIAL_THEME_DOCUMENT } from "../src/store/editorStore";
-import { generateThemeFiles } from "../src/components/builder/compiler";
+import { generateThemeFiles, sanitizeThemePackageName } from "../src/components/builder/compiler";
 import { compileToHbs as compileHeaderToHbs } from "../src/editor/components/header/compiler";
 
 async function verify() {
@@ -183,6 +183,77 @@ async function verify() {
   console.log("\n--- Checking error templates ---");
   console.log(`  [${files["error.hbs"].includes("statusCode") ? "PASS" : "FAIL"}] error.hbs contains statusCode`);
   console.log(`  [${files["error-404.hbs"].includes("404") || files["error-404.hbs"].includes("statusCode") ? "PASS" : "FAIL"}] error-404.hbs contains error details`);
+
+  // -----------------------------------------------------------------------
+  // Package.json name sanitization tests (GS010-PJ-NAME-HY)
+  // -----------------------------------------------------------------------
+  console.log("\n--- Checking package.json name sanitization (GS010-PJ-NAME-HY) ---");
+  const ghostNamePattern = /^([a-z0-9]+-)*[a-z0-9]+$/;
+
+  const testCases: [string | null | undefined, string][] = [
+    // Standard names
+    ["My Theme", "my-theme"],
+    ["Organic Cafe Theme", "organic-cafe-theme"],
+    ["Minimal Blog", "minimal-blog"],
+    // Numbers and symbols
+    ["My Theme 2026!", "my-theme-2026"],
+    ["Awesome & Special Theme (2026)!", "awesome-special-theme-2026"],
+    ["Version 2.0.1 - Final", "version-2-0-1-final"],
+    // Empty, missing, whitespace, invalid
+    ["", "my-ghost-theme"],
+    ["   ", "my-ghost-theme"],
+    [null, "my-ghost-theme"],
+    [undefined, "my-ghost-theme"],
+    ["!@#$%^&*()_+", "my-ghost-theme"],
+    // Hyphen handling (no leading, trailing, or consecutive hyphens)
+    ["---leading-and-trailing---", "leading-and-trailing"],
+    ["multiple   spaces   and---hyphens", "multiple-spaces-and-hyphens"],
+    ["-start", "start"],
+    ["end-", "end"],
+    ["--middle--dash--", "middle-dash"]
+  ];
+
+  for (const [input, expected] of testCases) {
+    const result = sanitizeThemePackageName(input);
+    const conformsToGhostRule = ghostNamePattern.test(result);
+    console.log(`  [${result === expected && conformsToGhostRule ? "PASS" : "FAIL"}] ${JSON.stringify(input)} -> "${result}" (expected: "${expected}")`);
+    if (result !== expected) {
+      throw new Error(`sanitizeThemePackageName(${JSON.stringify(input)}) returned "${result}", expected "${expected}"`);
+    }
+    if (!conformsToGhostRule) {
+      throw new Error(`Sanitized name "${result}" does not conform to Ghost package name pattern ${ghostNamePattern}`);
+    }
+  }
+
+  // Integration test with generateThemeFiles
+  console.log("\n--- Checking generateThemeFiles package.json output ---");
+  const testDocWithSpecialName = {
+    ...INITIAL_THEME_DOCUMENT,
+    metadata: {
+      ...INITIAL_THEME_DOCUMENT.metadata,
+      name: "Awesome & Special Theme (2026)!"
+    }
+  };
+  const filesWithSpecialName = generateThemeFiles(testDocWithSpecialName);
+  const pkgJsonSpecial = JSON.parse(filesWithSpecialName["package.json"]);
+  console.log(`  [${pkgJsonSpecial.name === "awesome-special-theme-2026" ? "PASS" : "FAIL"}] package.json name is sanitized: "${pkgJsonSpecial.name}"`);
+  if (pkgJsonSpecial.name !== "awesome-special-theme-2026") {
+    throw new Error(`Expected "awesome-special-theme-2026", got "${pkgJsonSpecial.name}"`);
+  }
+
+  const testDocWithEmptyName = {
+    ...INITIAL_THEME_DOCUMENT,
+    metadata: {
+      ...INITIAL_THEME_DOCUMENT.metadata,
+      name: ""
+    }
+  };
+  const filesWithEmptyName = generateThemeFiles(testDocWithEmptyName);
+  const pkgJsonEmpty = JSON.parse(filesWithEmptyName["package.json"]);
+  console.log(`  [${pkgJsonEmpty.name === "my-ghost-theme" ? "PASS" : "FAIL"}] empty name falls back to: "${pkgJsonEmpty.name}"`);
+  if (pkgJsonEmpty.name !== "my-ghost-theme") {
+    throw new Error(`Expected fallback "my-ghost-theme", got "${pkgJsonEmpty.name}"`);
+  }
 
   console.log("\nALL VERIFICATIONS PASSED SUCCESSFULLY!");
 }

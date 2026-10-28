@@ -426,23 +426,35 @@ export default function Toolbar() {
           )}
 
           {/* Autosave / DB Status Badge */}
-          <div className="hidden xl:flex items-center gap-1.5 text-xs text-brand-body pr-1 shrink-0">
+          <div
+            className="flex items-center gap-1.5 text-xs text-brand-body pr-1 shrink-0"
+            role="status"
+            aria-live="polite"
+            title={
+              saveStatus === "saving" ? "Saving..." :
+              saveStatus === "saved" ? "Saved" :
+              saveStatus === "error" ? "Save Error" : undefined
+            }
+          >
             {saveStatus === "saving" && (
               <>
-                <Loader2 size={13} className="animate-spin text-brand-link" />
-                <span className="text-[10px] font-mono text-brand-mute">Saving...</span>
+                <Loader2 size={13} className="animate-spin text-brand-link shrink-0" aria-hidden="true" />
+                <span className="hidden xl:inline text-[10px] font-mono text-brand-mute">Saving...</span>
+                <span className="sr-only">Saving...</span>
               </>
             )}
             {saveStatus === "saved" && (
               <>
-                <Cloud size={13} className="text-emerald-500" />
-                <span className="text-[10px] font-mono text-emerald-600">Saved</span>
+                <Cloud size={13} className="text-emerald-500 shrink-0" aria-hidden="true" />
+                <span className="hidden xl:inline text-[10px] font-mono text-emerald-600">Saved</span>
+                <span className="sr-only">Saved</span>
               </>
             )}
             {saveStatus === "error" && (
               <>
-                <AlertCircle size={13} className="text-red-500" />
-                <span className="text-[10px] font-mono text-red-500">Save Error</span>
+                <AlertCircle size={13} className="text-red-500 shrink-0" aria-hidden="true" />
+                <span className="hidden xl:inline text-[10px] font-mono text-red-500">Save Error</span>
+                <span className="sr-only">Save Error</span>
               </>
             )}
           </div>

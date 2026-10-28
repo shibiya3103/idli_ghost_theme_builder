@@ -591,7 +591,7 @@ export const CanvasElement = ({ block }: {
    * Renders the desktop navigation links with dropdown support.
    */
   const renderDesktopNav = (justify: string = "center") => (
-    <nav className={`flex items-center gap-5 flex-nowrap whitespace-nowrap text-[1.0625rem] font-medium opacity-90 min-w-0 max-w-full overflow-x-auto scrollbar-none ${justify === "center" ? "justify-center" : "justify-start"
+    <nav className={`flex items-center gap-5 flex-nowrap whitespace-nowrap text-[1.0625rem] font-medium opacity-90 overflow-visible shrink-0 ${justify === "center" ? "justify-center" : "justify-start"
       }`}>
       {items.map((item: HeaderNavItem, idx: number) => renderDesktopNavItem(item, idx))}
     </nav>
